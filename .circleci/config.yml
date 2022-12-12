@@ -50,8 +50,8 @@ jobs:
       # run tests!
       - run: gradle test
 
-  workflows:
-    main:
-      jobs:
-        - build:
-            context: SonarCloud
+workflows:
+  main:
+    jobs:
+      - build:
+          context: SonarCloud
