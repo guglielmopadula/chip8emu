@@ -1,8 +1,6 @@
 # Java Gradle CircleCI 2.0 configuration file
 # See: https://circleci.com/docs/2.0/language-java/
 version: 2.1
-orbs:
-  sonarcloud: sonarsource/sonarcloud@1.1.1
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -29,7 +27,7 @@ jobs:
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
-      - sonarcloud/scan
+
 
       # Download and cache dependencies
       - restore_cache:
@@ -38,6 +36,7 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
+
       - run: gradle dependencies
 
       - save_cache:
@@ -45,5 +44,14 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
+      - run:
+          name: Analyze on SonarCloud
+          command: gradle build sonarqube"
       # run tests!
       - run: gradle test
+
+    workflows:
+      main:
+        jobs:
+          - build:
+              context: SonarCloud

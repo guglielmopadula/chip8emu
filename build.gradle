@@ -1,6 +1,16 @@
 plugins {
     id 'java'
+    id "org.sonarqube" version "3.5.0.2730"
 }
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "guglielmopadula_chip8emu"
+        property "sonar.organization", "guglielmopadula"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
+}
+
 
 group 'org.dssc'
 version '1.0-SNAPSHOT'
