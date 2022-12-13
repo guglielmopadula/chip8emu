@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.dssc.chip8.Tests" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-12-13T18:31:23" hostname="cyberguli-HP-EliteBook-830-G8-Notebook-PC" time="0.016">
+<testsuite name="org.dssc.chip8.Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-12-13T20:25:00" hostname="AREA-6YLRNN2" time="0.022">
   <properties/>
-  <testcase name="test_clear_register()" classname="org.dssc.chip8.Tests" time="0.016"/>
+  <testcase name="test_clear_register()" classname="org.dssc.chip8.Tests" time="0.02"/>
+  <testcase name="test_clear_ram()" classname="org.dssc.chip8.Tests" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

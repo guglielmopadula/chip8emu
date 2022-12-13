@@ -1,4 +1,6 @@
 package org.dssc.chip8;
+import java.io.*;
+import java.lang.Integer.*;
 
 public class Chip8 {
     Keyboard keyboard;
@@ -16,5 +18,7 @@ public class Chip8 {
         this.timers=new Timers();
         this.cpu=new CPU(keyboard,ram,registers,screen,timers);
     }
+
+
 
 }

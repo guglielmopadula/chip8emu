@@ -1,6 +1,7 @@
 package org.dssc.chip8;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +23,8 @@ public class Tests {
         Arrays.fill(temp,(byte) 0);
         assertTrue(Arrays.equals(ram.memory,temp));
     }
+
+
 
 
 }
