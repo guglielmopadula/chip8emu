@@ -9,4 +9,8 @@ public class RAM {
     public void clear() {
         Arrays.fill(memory, (byte) 0);
     }
+
+    public RAM(){
+        this.clear();
+    }
 }
