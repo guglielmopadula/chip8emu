@@ -11,4 +11,10 @@ public class Registers {
         Arrays.fill(V,(byte) 0);
     }
 
+    public Registers(){
+        this.clear();
+    }
+
+
+
 }

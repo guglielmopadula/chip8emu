@@ -11,7 +11,6 @@ public class Tests {
     @Test
     void test_clear_register(){
         Registers reg=new Registers();
-        System.out.println(reg.V[0]);
         Byte[] temp=new Byte[16];
         Arrays.fill(temp,(byte) 0);
         reg.clear();

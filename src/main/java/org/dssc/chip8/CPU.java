@@ -16,7 +16,6 @@ public class CPU {
         this.registers=registers;
         this.screen=screen;
         this.timers=timers;
-
     }
 
 }
