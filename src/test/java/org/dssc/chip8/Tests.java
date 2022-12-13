@@ -20,7 +20,6 @@ public class Tests {
         RAM ram=new RAM();
         Byte[] temp=new Byte[4096];
         Arrays.fill(temp,(byte) 0);
-        ram.clear();
         assertTrue(Arrays.equals(ram.memory,temp));
     }
 

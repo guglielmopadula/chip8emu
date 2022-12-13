@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 public class RAM {
 
-    Byte[] memory=new Byte[4096];
+    Byte[] memory = new Byte[4096];
 
-    public void clear(){
-
+    public void clear() {
+        Arrays.fill(memory, (byte) 0);
     }
 }
