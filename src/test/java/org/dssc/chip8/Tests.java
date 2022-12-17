@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
     }
 
     @Test
-    void testReadRomFromString() {
+    void testReadRomFromString() throws IOException {
         String dump = "test_opcode.txt";
         String path = "test_opcode.ch8";
         Chip8 mychip8 = new Chip8();
@@ -44,7 +44,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
             hexdump = Arrays.stream(tmp2).boxed().toArray(Integer[]::new);
             assertTrue(Arrays.equals(hexdump,  java_dump));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            assertTrue(false,"IO exception");
+            throw new IOException(e);
         }
     }
     @Test
