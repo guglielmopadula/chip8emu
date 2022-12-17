@@ -1,12 +1,12 @@
 package org.dssc.chip8;
+
 import org.junit.jupiter.api.Test;
-import java.io.File;
+
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.nio.file.Files;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Tests {
@@ -36,7 +36,6 @@ public class Tests {
         for (Byte x: java_dump) {
             java_dump_string+=x.toString()+"\n";
         }
-        System.out.println(java_dump_string.length());
         try {
             String content = Files.readString(Paths.get(dump));
             assertTrue(content.equals(java_dump_string));
@@ -50,17 +49,27 @@ public class Tests {
     void fetch_opcode_from_ram(){
         Chip8 mychip8=new Chip8();
         String path="test_opcode.ch8";
-        String dump="test_opcode.txt";
+        String dump="test_fetch.txt";
         Byte[] java_dump=mychip8.read_rom_from_string(path);
+        mychip8.loadRomToRam(java_dump);
+
+        mychip8.cpu.pc=512;
         try {
             String content = Files.readString(Paths.get(dump));
-            int steps = content.length();
+            long steps = content.lines().count();
             String fetch_dump_string="";
             for (int i=0;i < steps ; i++) {
                 Short opcode = mychip8.cpu.fetch();
+                //opcode = (short) ( ((opcode & 0x00ff) << 8) + ((opcode & 0xff00) >> 8) );
+                    opcode= Short.reverseBytes(opcode);
+                 int test= Short.toUnsignedInt(opcode);
+                 System.out.println(test);
                 fetch_dump_string+=opcode.toString()+"\n";
             }
-            assertEquals(content, fetch_dump_string);
+
+            assertTrue(content.equals(fetch_dump_string));
+
+            System.out.println("ciao");
         }
 
         catch (IOException e) {

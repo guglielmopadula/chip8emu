@@ -1,6 +1,7 @@
 package org.dssc.chip8;
 import java.io.*;
-import java.lang.Integer.*;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class Chip8 {
     Keyboard keyboard;
@@ -36,6 +37,10 @@ public class Chip8 {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public void loadRomToRam(Byte[] rom) {
+        IntStream.range(0,rom.length).forEach(i -> this.ram.memory[i+512]=rom[i]);
     }
 
 }

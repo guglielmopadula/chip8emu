@@ -21,11 +21,20 @@ public class CPU {
     }
 
     public Short fetch(){
-        short OPCODE = 0;
-        short low_byte = 0;
-        short high_byte = 0;
+        Short OPCODE = 0;
+        Short lowByte = 0;
+        Short highByte = 0;
 
-        return (short) 0;
+        lowByte = (short) ram.memory[this.pc];
+        this.pc+=1;
+        highByte =  (short) ram.memory[this.pc];
+        this.pc+=1;
 
+        //System.out.println(lowByte);
+        //System.out.println(highByte);
+
+        OPCODE= (short) ((lowByte<<8) | (highByte));
+
+        return OPCODE;
     }
 }
