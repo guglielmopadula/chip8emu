@@ -1,50 +1,77 @@
 package org.dssc.chip8;
+
 import org.junit.jupiter.api.Test;
-import java.io.File;
+
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.nio.file.Files;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class Tests {
+ class Tests {
 
     @Test
-    void test_clear_register(){
+    void testClearRegister(){
         Registers reg=new Registers();
         Byte[] temp=new Byte[16];
         Arrays.fill(temp,(byte) 0);
-        assertTrue(Arrays.equals(reg.V,temp));
+        assertTrue(Arrays.equals(reg.v,temp));
     }
     @Test
-    void test_clear_ram(){
+    void testClearRam(){
         RAM ram=new RAM();
-        Byte[] temp=new Byte[4096];
-        Arrays.fill(temp,(byte) 0);
+        Integer[] temp=new Integer[4096];
+        Arrays.fill(temp,(int) 0);
         assertTrue(Arrays.equals(ram.memory,temp));
     }
 
     @Test
-    void test_read_rom_from_string(){
+    void testReadRomFromString(){
         String dump="test_opcode.txt";
         String path="test_opcode.ch8";
         Chip8 mychip8=new Chip8();
-        Byte[] java_dump=mychip8.read_rom_from_string(path);
-        String java_dump_string="";
-        for (Byte x: java_dump) {
-            java_dump_string+=x.toString()+"\n";
+        Integer[] java_dump=mychip8.readRomFromString(path);
+        String javaDumpString="";
+        for (Integer x: java_dump) {
+            javaDumpString+=x.toString()+"\n";
         }
-        System.out.println(java_dump_string.length());
         try {
             String content = Files.readString(Paths.get(dump));
-            assertTrue(content.equals(java_dump_string));
+            assertTrue(content.equals(javaDumpString));
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    @Test
+    void fetchOpcodeFromRam(){
+        Chip8 mychip8=new Chip8();
+        String path="test_opcode.ch8";
+        String dump="test_fetch.txt";
+        Integer[] javaDump=mychip8.readRomFromString(path);
+        mychip8.loadRomToRam(javaDump);
+        Integer[] hexdump;
 
+        mychip8.cpu.pc=512;
+        try {
+            List<Integer> tmp= Files.lines(Paths.get(dump)).map(Integer::parseInt).toList();
+            int[] tmp2=tmp.stream().mapToInt(i->i).toArray();
+            hexdump =Arrays.stream( tmp2 ).boxed().toArray( Integer[]::new );
+            Integer[] opcodes = new Integer[hexdump.length];
+            for (int i=0;i < hexdump.length; i++) {
+                Integer opcode = mychip8.cpu.fetch();
+                opcodes[i]=opcode;
+                mychip8.cpu.pc+=2;
+            }
+            assertTrue(Arrays.equals(hexdump,opcodes));
+            System.out.println("ciao");
+        }
+
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
