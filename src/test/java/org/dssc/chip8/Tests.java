@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         }
     }
     @Test
-    void fetchOpcodeFromRam(){
+    void fetchOpcodeFromRam() throws IOException{
         Chip8 mychip8=new Chip8();
         String path="test_opcode.ch8";
         String dump="test_fetch.txt";
@@ -71,7 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
         catch (IOException e) {
             assertTrue(false,"IO exception");
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
         System.out.println("ciao");
 

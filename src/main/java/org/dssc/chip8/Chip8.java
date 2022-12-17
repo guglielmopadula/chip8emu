@@ -19,8 +19,8 @@ public class Chip8 {
         this.cpu=new CPU(keyboard,ram,registers,screen,timers);
     }
 
-     Integer[] readRomFromString(String file_path){
-        File romFile=new File(file_path);
+     Integer[] readRomFromString(String filePath){
+        File romFile=new File(filePath);
         try (DataInputStream romStream = new DataInputStream(
                 new BufferedInputStream(
                         new FileInputStream(romFile)))
@@ -30,7 +30,7 @@ public class Chip8 {
             Integer[] romArrayObj=new Integer[(int) romFile.length()];
             int i=0;
             for(byte b: romArray)
-                romArrayObj[i++] = ((int) b) & 0xff;
+                romArrayObj[i++] = b & 0xff;
             return romArrayObj;
         } catch (IOException e) {
             throw new RuntimeException(e);
