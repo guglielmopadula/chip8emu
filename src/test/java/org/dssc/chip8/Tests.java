@@ -2,6 +2,7 @@ package org.dssc.chip8;
 
 import org.junit.jupiter.api.Test;
 
+import java.beans.JavaBean;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -28,20 +29,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
     }
 
     @Test
-    void testReadRomFromString(){
-        String dump="test_opcode.txt";
-        String path="test_opcode.ch8";
-        Chip8 mychip8=new Chip8();
-        Integer[] java_dump=mychip8.readRomFromString(path);
-        String javaDumpString="";
-        for (Integer x: java_dump) {
-            javaDumpString+=x.toString()+"\n";
-        }
+    void testReadRomFromString() {
+        String dump = "test_opcode.txt";
+        String path = "test_opcode.ch8";
+        Chip8 mychip8 = new Chip8();
+        Integer[] java_dump = mychip8.readRomFromString(path);
+        String javaDumpString = "";
+        Integer[] hexdump;
+
+
         try {
-            String content = Files.readString(Paths.get(dump));
-            assertTrue(content.equals(javaDumpString));
-        }
-        catch (IOException e) {
+            List<Integer> tmp = Files.lines(Paths.get(dump)).map(Integer::parseInt).toList();
+            int[] tmp2 = tmp.stream().mapToInt(i -> i).toArray();
+            hexdump = Arrays.stream(tmp2).boxed().toArray(Integer[]::new);
+            assertTrue(Arrays.equals(hexdump,  java_dump));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -66,7 +68,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 mychip8.cpu.pc+=2;
             }
             assertTrue(Arrays.equals(hexdump,opcodes));
-            System.out.println("ciao");
         }
 
         catch (IOException e) {
