@@ -1,8 +1,8 @@
 package org.dssc.chip8;
 
 import org.junit.jupiter.api.Test;
-
-import java.beans.JavaBean;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,17 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         assertTrue(Arrays.equals(reg.v,temp));
     }
     @Test
-    void testClearRam(){
+    void testClearRam() {
         RAM ram=new RAM();
         Integer[] temp=new Integer[4096];
         Arrays.fill(temp,(int) 0);
         assertTrue(Arrays.equals(ram.memory,temp));
     }
 
-    @Test
-    void testReadRomFromString() throws IOException {
-        String dump = "test_opcode.txt";
-        String path = "test_opcode.ch8";
+    @ParameterizedTest
+    @ValueSource(strings = {"rom1", "rom2"})
+    void testReadRomFromString(String rom) throws IOException {
+        String dump = rom+".txt";
+        String path = rom+".ch8";
         Chip8 mychip8 = new Chip8();
         Integer[] java_dump = mychip8.readRomFromString(path);
         String javaDumpString = "";
