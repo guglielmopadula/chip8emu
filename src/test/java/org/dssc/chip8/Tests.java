@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
     @Test
     void testClearRegister(){
         Registers reg=new Registers();
-        Byte[] temp=new Byte[16];
-        Arrays.fill(temp,(byte) 0);
+        Integer[] temp=new Integer[16];
+        Arrays.fill(temp,(int) 0);
         assertTrue(Arrays.equals(reg.v,temp));
     }
     @Test

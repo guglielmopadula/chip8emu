@@ -4,11 +4,11 @@ import java.util.Arrays;
 
  class Registers {
 
-    Byte[] v=new Byte[16];
+    Integer[] v=new Integer[16];
 
 
     void clear(){
-        Arrays.fill(v,(byte) 0);
+        Arrays.fill(v,(int) 0);
     }
 
      Registers(){

@@ -24,7 +24,7 @@ class CPU {
         int lowByte = 0;
         int highByte = 0 ;
         lowByte = ram.memory[this.pc];
-        highByte =ram.memory[this.pc+1];
+        highByte = ram.memory[this.pc+1];
         OPCODE=((lowByte<<8) | highByte);
         return OPCODE;
     }
