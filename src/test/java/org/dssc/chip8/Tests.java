@@ -2,29 +2,25 @@ package org.dssc.chip8;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class Tests {
+ class Tests {
 
     @Test
-    void test_clear_register(){
+    void testClearRegister(){
         Registers reg=new Registers();
         Byte[] temp=new Byte[16];
         Arrays.fill(temp,(byte) 0);
-        assertTrue(Arrays.equals(reg.V,temp));
+        assertTrue(Arrays.equals(reg.v,temp));
     }
     @Test
-    void test_clear_ram(){
+    void testClearRam(){
         RAM ram=new RAM();
         Integer[] temp=new Integer[4096];
         Arrays.fill(temp,(int) 0);
@@ -32,30 +28,30 @@ public class Tests {
     }
 
     @Test
-    void test_read_rom_from_string(){
+    void testReadRomFromString(){
         String dump="test_opcode.txt";
         String path="test_opcode.ch8";
         Chip8 mychip8=new Chip8();
-        Integer[] java_dump=mychip8.read_rom_from_string(path);
-        String java_dump_string="";
+        Integer[] java_dump=mychip8.readRomFromString(path);
+        String javaDumpString="";
         for (Integer x: java_dump) {
-            java_dump_string+=x.toString()+"\n";
+            javaDumpString+=x.toString()+"\n";
         }
         try {
             String content = Files.readString(Paths.get(dump));
-            assertTrue(content.equals(java_dump_string));
+            assertTrue(content.equals(javaDumpString));
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     @Test
-    void fetch_opcode_from_ram(){un
+    void fetchOpcodeFromRam(){
         Chip8 mychip8=new Chip8();
         String path="test_opcode.ch8";
         String dump="test_fetch.txt";
-        Integer[] java_dump=mychip8.read_rom_from_string(path);
-        mychip8.loadRomToRam(java_dump);
+        Integer[] javaDump=mychip8.readRomFromString(path);
+        mychip8.loadRomToRam(javaDump);
         Integer[] hexdump;
 
         mychip8.cpu.pc=512;
@@ -76,10 +72,6 @@ public class Tests {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-
-
     }
 
 
