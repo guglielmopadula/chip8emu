@@ -20,7 +20,7 @@ public class Chip8 {
         this.cpu=new CPU(keyboard,ram,registers,screen,timers);
     }
 
-    public Byte[] read_rom_from_string(String file_path){
+    public Integer[] read_rom_from_string(String file_path){
         File rom_file=new File(file_path);
         try {
             DataInputStream rom_stream = new DataInputStream(
@@ -28,10 +28,11 @@ public class Chip8 {
                             new FileInputStream(rom_file)));
             byte[] rom_array = new byte[(int) rom_file.length()];
             rom_stream.read(rom_array);
-            Byte[] Rom_Array=new Byte[(int) rom_file.length()];
+
+            Integer[] Rom_Array=new Integer[(int) rom_file.length()];
             int i=0;
             for(byte b: rom_array)
-                Rom_Array[i++] = b;
+                Rom_Array[i++] = ((int) b) & 0xff;
             return Rom_Array;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -39,8 +40,9 @@ public class Chip8 {
 
     }
 
-    public void loadRomToRam(Byte[] rom) {
+    public void loadRomToRam(Integer[] rom) {
         IntStream.range(0,rom.length).forEach(i -> this.ram.memory[i+512]=rom[i]);
+
     }
 
 }

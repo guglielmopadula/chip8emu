@@ -4,10 +4,10 @@ import java.util.Arrays;
 
 public class RAM {
 
-    Byte[] memory = new Byte[4096];
+    Integer[] memory = new Integer[4096];
 
     public void clear() {
-        Arrays.fill(memory, (byte) 0);
+        Arrays.fill(memory, (int) 0);
     }
 
     public RAM(){
