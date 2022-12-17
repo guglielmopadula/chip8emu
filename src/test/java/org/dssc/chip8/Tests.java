@@ -44,6 +44,31 @@ public class Tests {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    void fetch_opcode_from_ram(){
+        Chip8 mychip8=new Chip8();
+        String path="test_opcode.ch8";
+        String dump="test_opcode.txt";
+        Byte[] java_dump=mychip8.read_rom_from_string(path);
+        try {
+            String content = Files.readString(Paths.get(dump));
+            int steps = content.length();
+            String fetch_dump_string="";
+            for (int i=0;i < steps ; i++) {
+                Short opcode = mychip8.cpu.fetch();
+                fetch_dump_string+=opcode.toString()+"\n";
+            }
+            assertEquals(content, fetch_dump_string);
+        }
+
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
 
     }
 
