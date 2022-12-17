@@ -56,22 +56,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
         mychip8.cpu.pc=512;
         try {
-            List<Integer> tmp= Files.lines(Paths.get(dump)).map(Integer::parseInt).toList();
-            int[] tmp2=tmp.stream().mapToInt(i->i).toArray();
-            hexdump =Arrays.stream( tmp2 ).boxed().toArray( Integer[]::new );
+            List<Integer> opcodesList= Files.lines(Paths.get(dump)).map(Integer::parseInt).toList();
+            hexdump =Arrays.stream( opcodesList.stream().mapToInt(i->i).toArray() ).boxed().toArray( Integer[]::new );
             Integer[] opcodes = new Integer[hexdump.length];
+
             for (int i=0;i < hexdump.length; i++) {
                 Integer opcode = mychip8.cpu.fetch();
                 opcodes[i]=opcode;
                 mychip8.cpu.pc+=2;
             }
+
             assertTrue(Arrays.equals(hexdump,opcodes));
-            System.out.println("ciao");
         }
 
         catch (IOException e) {
+            assertTrue(false,"IO exception");
             throw new RuntimeException(e);
         }
+        System.out.println("ciao");
+
     }
 
 
