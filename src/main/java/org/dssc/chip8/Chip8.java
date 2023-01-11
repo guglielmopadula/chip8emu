@@ -10,16 +10,20 @@ public class Chip8 {
     Stack stack;
     Timers timers;
     CPU cpu;
-     Chip8(){
+     public Chip8(){
         this.keyboard=new Keyboard();
         this.ram=new RAM();
         this.registers=new Registers();
-        this.screen=new Screen();
+        this.screen=new Screen(5); // extract this MAGIC number !
         this.timers=new Timers();
         this.cpu=new CPU(keyboard,ram,registers,screen,timers);
     }
 
-     Integer[] readRomFromString(String filePath){
+        public void startChip8(String filePath) {
+         Integer[] rom = readRomFromString(filePath);
+         loadRomToRam(rom);
+        }
+       Integer[] readRomFromString(String filePath){
         File romFile=new File(filePath);
         try (DataInputStream romStream = new DataInputStream(
                 new BufferedInputStream(
@@ -35,12 +39,10 @@ public class Chip8 {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
      void loadRomToRam(Integer[] rom) {
         IntStream.range(0,rom.length).forEach(i -> this.ram.memory[i+512]=rom[i]);
-
     }
 
 }
