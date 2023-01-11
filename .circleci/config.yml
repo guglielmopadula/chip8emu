@@ -48,7 +48,7 @@ jobs:
           name: Analyze on SonarCloud
           command: gradle build sonarqube
       # run tests!
-      - run: gradle test jacocoTestReport sonarqube
+      - run: gradle test
 
 workflows:
   main:
