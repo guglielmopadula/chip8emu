@@ -99,6 +99,106 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
     }
 
+    @Test
+    void test_6xnn() {
+         Chip8 mychip= new Chip8();
+         mychip.cpu.decodeExecute(0x6310);
+        assertEquals(0x0010, mychip.registers.v[3]);
+    }
+     @Test
+     void test_7xnn() {
+         Chip8 mychip= new Chip8();
+         mychip.registers.v[3]=0x001;
+         mychip.cpu.decodeExecute(0x7310);
+         assertEquals(0x001+0x0010, mychip.registers.v[3]);
+     }
+     @Test
+     void test_8xy0() {
+         Chip8 mychip= new Chip8();
+         mychip.registers.v[3]=0x001;
+         mychip.registers.v[4]=0x009;
+         mychip.cpu.decodeExecute(0x8340);
+         assertEquals(mychip.registers.v[4], mychip.registers.v[3]);
+     }
+
+     @Test
+     void test_8xy1() {
+         Chip8 mychip= new Chip8();
+         mychip.registers.v[3]=0x001;
+         mychip.registers.v[4]=0x009;
+         mychip.cpu.decodeExecute(0x8341);
+         assertEquals(mychip.registers.v[3], 0x001 | 0x009 );
+     }
+     @Test
+     void test_8xy2() {
+         Chip8 mychip= new Chip8();
+         mychip.registers.v[3]=0x001;
+         mychip.registers.v[4]=0x009;
+         mychip.cpu.decodeExecute(0x8342);
+         assertEquals(mychip.registers.v[3], 0x001 & 0x009 );
+     }
+
+     @Test
+     void test_8xy3() {
+         Chip8 mychip= new Chip8();
+         mychip.registers.v[3]=0x001;
+         mychip.registers.v[4]=0x009;
+         mychip.cpu.decodeExecute(0x8343);
+         assertEquals(mychip.registers.v[3], 0x001 ^ 0x009 );
+     }
+     @Test
+     void test_8xy4() {
+         Chip8 mychip= new Chip8();
+         mychip.registers.v[3]=0x001;
+         mychip.registers.v[4]=0x009;
+         mychip.cpu.decodeExecute(0x8344);
+         assertEquals(mychip.registers.v[3], 0x001 + 0x009 );
+         //aggiungere test per il carry, non sono sicuro che funzioni attualmente
+     }
+
+     @Test
+     void test_8xy5() {
+         Chip8 mychip= new Chip8();
+         mychip.registers.v[3]=0x001;
+         mychip.registers.v[4]=0x009;
+         mychip.cpu.decodeExecute(0x8345);
+         assertEquals(mychip.registers.v[3], 0x001 - 0x009 );
+         //aggiungere test per il carry, non sono sicuro che funzioni attualmente
+     }
+     @Test
+     void test_8xy6() {
+         Chip8 mychip= new Chip8();
+         short pc = mychip.cpu.pc;
+         mychip.registers.v[3]=0x001;
+         mychip.cpu.decodeExecute(0x8346);
+         assertEquals(mychip.registers.v[3], 0x001 >>> 1);
+         assertEquals(mychip.cpu.pc,  pc + 2 );
+         //aggiungere test per il carry, non sono sicuro che funzioni attualmente
+     }
+     @Test
+     void test_8xy7() {
+         Chip8 mychip= new Chip8();
+         short pc = mychip.cpu.pc;
+         mychip.registers.v[3]=0x001;
+         mychip.registers.v[4]=0x009;
+         mychip.cpu.decodeExecute(0x8347);
+         assertEquals(mychip.registers.v[3],  0x009 -0x001 );
+         assertEquals(mychip.cpu.pc,  pc + 2 );
+
+         //aggiungere test per il carry, non sono sicuro che funzioni attualmente
+     }
+     @Test
+     void test_8xyE() {
+         Chip8 mychip= new Chip8();
+         short pc = mychip.cpu.pc;
+         mychip.registers.v[3]=0x001;
+         mychip.cpu.decodeExecute(0x834E);
+         assertEquals(mychip.registers.v[3],  0x001 << 1 );
+         assertEquals(mychip.cpu.pc,  pc + 2 );
+         //aggiungere test per il carry, non sono sicuro che funzioni attualmente
+     }
+
+
      @Test
      void test_compare_images_true() {
          BufferedImage Image1 = new BufferedImage(10, 20,TYPE_BYTE_BINARY);
