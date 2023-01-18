@@ -1,8 +1,9 @@
 package org.dssc.chip8;
+import javax.swing.*;
 import java.io.*;
 import java.util.stream.IntStream;
 
-public class Chip8 {
+public class Chip8 extends JFrame{
     Keyboard keyboard;
     RAM ram;
     Registers registers;
@@ -10,14 +11,27 @@ public class Chip8 {
     Stack stack;
     Timers timers;
     CPU cpu;
-     public Chip8(){
+
+g     public Chip8(){
         this.keyboard=new Keyboard();
         this.ram=new RAM();
         this.registers=new Registers();
         this.screen=new Screen(5); // extract this MAGIC number !
         this.timers=new Timers();
         this.cpu=new CPU(keyboard,ram,registers,screen,timers);
+        this.setJavaComponents();
+
     }
+
+    void setJavaComponents(){
+        JPanel p= new JPanel();
+        this.setSize(12*62,12*31);
+        this.addKeyListener(this.keyboard);
+        this.pack();
+        this.setVisible(true);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
 
         public void startChip8(String filePath) {
          Integer[] rom = readRomFromString(filePath);
