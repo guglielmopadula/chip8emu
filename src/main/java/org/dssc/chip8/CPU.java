@@ -42,7 +42,7 @@ class CPU {
                 x = (opcode & 0x0f00) >> 8;
                 nn = opcode & 0x00ff;
                 if (this.registers.v[x] == nn)
-                    this.pc+=4;
+                    this.pc+=2;
                 this.pc+=2;
                 break;
             case  0x4000:
@@ -50,7 +50,7 @@ class CPU {
                 x = (opcode & 0x0f00) >> 8;
                 nn = opcode & 0x00ff;
                 if (this.registers.v[x] != nn)
-                    this.pc+=4;
+                    this.pc+=2;
                 this.pc+=2;
                 break;
             case  0x5000:
@@ -58,7 +58,7 @@ class CPU {
                 x = (opcode & 0x0f00) >> 8;
                 y = (opcode & 0x00f0) >> 4;
                 if (Objects.equals(this.registers.v[x], this.registers.v[y]))
-                    this.pc+=4;
+                    this.pc+=2;
                 this.pc+=2;
                 break;
 
@@ -155,15 +155,19 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         this.registers.v[0xf] = this.registers.v[x] & 0x80;
                         this.registers.v[x] = this.registers.v[x] << 1;
+                        System.out.println(this.pc);
                         this.pc+=2;
+                        System.out.println(this.pc);
+
                         break;
                 }
+                break;
             case 0x9000:
                 // 0X9xy0
                 x = (opcode & 0x0f00) >> 8;
                 y = (opcode & 0x00f0) >> 4;
                 if (!Objects.equals(this.registers.v[x], this.registers.v[y]))
-                    this.pc+=4;
+                    this.pc+=2;
                 this.pc+=2;
                 break;
             case 0xA000:
