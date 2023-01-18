@@ -46,7 +46,7 @@ jobs:
 
       - run:
           name: Analyze on SonarCloud
-          command: gradle build sonarqube
+          command: xvfb gradle build sonarqube
       # run tests!
       - run: xvfb gradle test jacocoTestReport sonarqube
 
