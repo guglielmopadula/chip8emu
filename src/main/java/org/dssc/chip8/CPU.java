@@ -1,5 +1,4 @@
 package org.dssc.chip8;
-import java.util.random.*
 
 import java.util.Objects;
 

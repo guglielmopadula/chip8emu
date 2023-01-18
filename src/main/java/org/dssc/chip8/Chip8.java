@@ -12,7 +12,7 @@ public class Chip8 extends JFrame{
     Timers timers;
     CPU cpu;
 
-g     public Chip8(){
+     public Chip8(){
         this.keyboard=new Keyboard();
         this.ram=new RAM();
         this.registers=new Registers();
