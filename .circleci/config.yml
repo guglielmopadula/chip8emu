@@ -10,7 +10,7 @@ jobs:
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
       # specify the version you desire here
-      - image: cyberguli/myjavadocker
+      - image: cimg/openjdk:17.0
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -46,9 +46,9 @@ jobs:
 
       - run:
           name: Analyze on SonarCloud
-          command: Xvfb gradle build sonarqube
+          command: xvfb-run gradle build sonarqube
       # run tests!
-      - run: Xvfb gradle test jacocoTestReport sonarqube
+      - run: xvfb-run gradle test jacocoTestReport sonarqube
 
 workflows:
   main:
