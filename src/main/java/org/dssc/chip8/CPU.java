@@ -3,7 +3,7 @@ package org.dssc.chip8;
 import java.util.Objects;
 
 class CPU {
-    Keyboard keyboard;
+    BaseKeyboard keyboard;
     RAM ram;
     Registers registers;
     Screen screen;
@@ -13,7 +13,7 @@ class CPU {
     //private Boolean[][]  chip8_pixels = new Boolean[64][32]; //
     int i;
 
-    CPU(Keyboard keyboard,RAM ram, Registers registers, Screen screen, Timers timers){
+    CPU(BaseKeyboard keyboard,RAM ram, Registers registers, Screen screen, Timers timers){
         this.keyboard=keyboard;
         this.ram=ram;
         this.registers=registers;

@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
     void testReadRomFromString(String rom) throws IOException {
         String dump = rom+".txt";
         String path = rom+".ch8";
-        Chip8 mychip8 = new Chip8();
+        BaseChip8 mychip8 = new BaseChip8();
         Integer[] java_dump = mychip8.readRomFromString(path);
         String javaDumpString = "";
         Integer[] hexdump;
@@ -70,7 +70,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
     }
     @Test
     void fetchOpcodeFromRam() throws IOException{
-        Chip8 mychip8=new Chip8();
+        BaseChip8 mychip8=new BaseChip8();
         String path="test_opcode.ch8";
         String dump="test_fetch.txt";
         Integer[] javaDump=mychip8.readRomFromString(path);
@@ -101,20 +101,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
     @Test
     void test_6xnn() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.cpu.decodeExecute(0x6310);
         assertEquals(0x0010, mychip.registers.v[3]);
     }
      @Test
      void test_7xnn() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.registers.v[3]=0x001;
          mychip.cpu.decodeExecute(0x7310);
          assertEquals(0x001+0x0010, mychip.registers.v[3]);
      }
      @Test
      void test_8xy0() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8340);
@@ -123,7 +123,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
      @Test
      void test_8xy1() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8341);
@@ -131,7 +131,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
      }
      @Test
      void test_8xy2() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8342);
@@ -140,7 +140,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
      @Test
      void test_8xy3() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8343);
@@ -148,7 +148,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
      }
      @Test
      void test_8xy4() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8344);
@@ -158,7 +158,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
      @Test
      void test_8xy5() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8345);
@@ -167,7 +167,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
      }
      @Test
      void test_8xy6() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          short pc = mychip.cpu.pc;
          mychip.registers.v[3]=0x001;
          mychip.cpu.decodeExecute(0x8346);
@@ -177,7 +177,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
      }
      @Test
      void test_8xy7() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          short pc = mychip.cpu.pc;
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
@@ -189,7 +189,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
      }
      @Test
      void test_8xyE() {
-         Chip8 mychip= new Chip8();
+         BaseChip8 mychip= new BaseChip8();
          short pc = mychip.cpu.pc;
          mychip.registers.v[3]=0x001;
          mychip.cpu.decodeExecute(0x834E);
