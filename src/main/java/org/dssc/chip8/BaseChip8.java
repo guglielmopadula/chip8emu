@@ -1,9 +1,8 @@
 package org.dssc.chip8;
-import javax.swing.*;
 import java.io.*;
 import java.util.stream.IntStream;
 
-public class BaseChip8 extends JFrame{
+public class BaseChip8  {
     BaseKeyboard basekeyboard;
     RAM ram;
     Registers registers;
