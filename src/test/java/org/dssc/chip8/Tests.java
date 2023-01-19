@@ -230,7 +230,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          Screen screen1 = new Screen(1);
          screen1.DrawPixel(0, 0);
          screen1.DrawPixel(1, 0);
-         System.out.println(screen1.getPixel(0,0));
          BufferedImage Image1= screen1.snapshot();
          BufferedImage Image2 = new BufferedImage(64, 32,TYPE_BYTE_BINARY);
          Image2.setRGB(0, 0, Color.WHITE.getRGB());

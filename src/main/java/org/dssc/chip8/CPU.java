@@ -155,9 +155,7 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         this.registers.v[0xf] = this.registers.v[x] & 0x80;
                         this.registers.v[x] = this.registers.v[x] << 1;
-                        System.out.println(this.pc);
                         this.pc+=2;
-                        System.out.println(this.pc);
 
                         break;
                 }
