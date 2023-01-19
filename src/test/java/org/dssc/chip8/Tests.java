@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import static java.awt.image.BufferedImage.TYPE_BYTE_BINARY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                  flag=flag & (Image1.getRGB(i,j)==Image2.getRGB(i,j));
              }
          }
-
          return flag;
      }
 
@@ -99,60 +99,75 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
     }
 
-    @Test
-    void test_6xnn() {
+     @ParameterizedTest
+     @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+     void test_6xnn(int register) {
          BaseChip8 mychip= new BaseChip8();
-         mychip.cpu.decodeExecute(0x6310);
-        assertEquals(0x0010, mychip.registers.v[3]);
+         int nn = ThreadLocalRandom.current().nextInt(0, 256);
+         mychip.cpu.decodeExecute(0x6000 | nn | (register << 8) );
+        assertEquals(nn, mychip.registers.v[register]);
     }
-     @Test
-     void test_7xnn() {
+     @ParameterizedTest
+     @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+     void test_7xnn(int register) {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.cpu.decodeExecute(0x7310);
-         assertEquals(0x001+0x0010, mychip.registers.v[3]);
+         int nn = ThreadLocalRandom.current().nextInt(0, 256);
+         mychip.registers.v[register]=nn;
+         mychip.cpu.decodeExecute(0x7000 | nn | (register << 8));
+         assertEquals(nn + nn, mychip.registers.v[register]);
      }
-     @Test
-     void test_8xy0() {
+     @ParameterizedTest
+     @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+     void test_8xy0(int register) {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.registers.v[4]=0x009;
-         mychip.cpu.decodeExecute(0x8340);
-         assertEquals(mychip.registers.v[4], mychip.registers.v[3]);
+         int vx =ThreadLocalRandom.current().nextInt(0, 256);
+         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         mychip.registers.v[register]=vx;
+         mychip.registers.v[4]=vy;
+         mychip.cpu.decodeExecute(0x8040 | (register << 8));
+         assertEquals(mychip.registers.v[4], mychip.registers.v[register]);
      }
 
      @Test
      void test_8xy1() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.registers.v[4]=0x009;
+         int vx =ThreadLocalRandom.current().nextInt(0, 256);
+         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         mychip.registers.v[3]=vx;
+         mychip.registers.v[4]=vy;
          mychip.cpu.decodeExecute(0x8341);
-         assertEquals(mychip.registers.v[3], 0x001 | 0x009 );
+         assertEquals(mychip.registers.v[3], vx | vy );
      }
      @Test
      void test_8xy2() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.registers.v[4]=0x009;
+         int vx =ThreadLocalRandom.current().nextInt(0, 256);
+         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         mychip.registers.v[3]=vx;
+         mychip.registers.v[4]=vy;
          mychip.cpu.decodeExecute(0x8342);
-         assertEquals(mychip.registers.v[3], 0x001 & 0x009 );
+         assertEquals(mychip.registers.v[3], vx & vy );
      }
 
      @Test
      void test_8xy3() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.registers.v[4]=0x009;
+         int vx =ThreadLocalRandom.current().nextInt(0, 256);
+         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         mychip.registers.v[3]=vx;
+         mychip.registers.v[4]=vy;
          mychip.cpu.decodeExecute(0x8343);
-         assertEquals(mychip.registers.v[3], 0x001 ^ 0x009 );
+         assertEquals(mychip.registers.v[3], vx ^ vy );
      }
      @Test
      void test_8xy4() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.registers.v[4]=0x009;
+         int vx =ThreadLocalRandom.current().nextInt(0, 256);
+         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         mychip.registers.v[3]=vx;
+         mychip.registers.v[4]=vy;
          mychip.cpu.decodeExecute(0x8344);
-         assertEquals(mychip.registers.v[3], 0x001 + 0x009 );
+         assertEquals(mychip.registers.v[3], vx + vy );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
 
@@ -168,36 +183,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
      @Test
      void test_8xy6() {
          BaseChip8 mychip= new BaseChip8();
-         short pc = mychip.cpu.pc;
          mychip.registers.v[3]=0x001;
          mychip.cpu.decodeExecute(0x8346);
          assertEquals(mychip.registers.v[3], 0x001 >>> 1);
-         assertEquals(mychip.cpu.pc,  pc + 2 );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
      @Test
      void test_8xy7() {
          BaseChip8 mychip= new BaseChip8();
-         short pc = mychip.cpu.pc;
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8347);
          assertEquals(mychip.registers.v[3],  0x009 -0x001 );
-         assertEquals(mychip.cpu.pc,  pc + 2 );
 
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
      @Test
      void test_8xyE() {
          BaseChip8 mychip= new BaseChip8();
-         short pc = mychip.cpu.pc;
          mychip.registers.v[3]=0x001;
          mychip.cpu.decodeExecute(0x834E);
          assertEquals(mychip.registers.v[3],  0x001 << 1 );
-         assertEquals(mychip.cpu.pc,  pc + 2 );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
 
+     @ParameterizedTest
+     @ValueSource(ints = {0x8340, 0x8341,0x8342,0x8343,0x8344,0x8345,0x8346,0x8347,0x834E})
+     void testPcAdvance8000(int opcode)  {
+         BaseChip8 mychip= new BaseChip8();
+         short pc = mychip.cpu.pc;
+         mychip.cpu.decodeExecute(opcode);
+         assertEquals(mychip.cpu.pc,  pc + 2 );
+     }
 
      @Test
      void test_compare_images_true() {
