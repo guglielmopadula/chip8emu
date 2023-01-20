@@ -99,6 +99,81 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
     }
 
+
+    @Test
+    void test_00EE(){
+        BaseChip8 mychip= new BaseChip8();
+        int memoryAddres = 0x012;
+        mychip.cpu.stack.push(memoryAddres);
+        mychip.cpu.decodeExecute(0x00EE);
+        assertEquals(mychip.cpu.pc,memoryAddres + 2);
+    }
+     @Test
+     void test_1NNN(){
+         BaseChip8 mychip= new BaseChip8();
+         int jumpLocation = 0x0123;
+         mychip.cpu.decodeExecute(0x1000 | jumpLocation);
+         assertEquals(mychip.cpu.pc,jumpLocation);
+     }
+
+     @Test
+     void test_2NNN_stack(){
+         BaseChip8 mychip= new BaseChip8();
+         int routineLocation = 0x0123;
+         mychip.cpu.pc=99;
+         mychip.cpu.decodeExecute(0x2000 | routineLocation);
+         assertEquals(mychip.cpu.stack.pop(),99);
+
+     }
+     @Test
+     void test_2NNN_pc(){
+         BaseChip8 mychip= new BaseChip8();
+         int routineLocation = 0x0123;
+         mychip.cpu.pc=99;
+         mychip.cpu.decodeExecute(0x2000 | routineLocation);
+         assertEquals(mychip.cpu.pc,0x0123);
+     }
+
+     @Test
+     void test_3xNN_equal(){
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.decodeExecute(0x3000 | 0x0023);
+         assertEquals(mychip.cpu.pc,pcBefore + 4);
+     }
+
+     @Test
+     void test_3xNN_Nequal(){
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.cpu.registers.v[0]= 0x22;
+         mychip.cpu.decodeExecute(0x3000 | 0x0023);
+         assertEquals(mychip.cpu.pc,pcBefore + 2);
+     }
+
+     @Test
+     void test_4xNN_equal(){
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.decodeExecute(0x4000 | 0x0023);
+         assertEquals(mychip.cpu.pc,pcBefore + 2);
+     }
+
+     @Test
+     void test_4xNN_Nequal(){
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.decodeExecute(0x4000 | 0x0022);
+         assertEquals(mychip.cpu.pc,pcBefore + 4);
+     }
+
+
+
+
+
      @ParameterizedTest
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
      void test_6xnn(int register) {
@@ -114,7 +189,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          int nn = ThreadLocalRandom.current().nextInt(0, 256);
          mychip.registers.v[register]=nn;
          mychip.cpu.decodeExecute(0x7000 | nn | (register << 8));
-         assertEquals(nn + nn, mychip.registers.v[register]);
+         assertEquals((nn + nn) & 0xff, mychip.registers.v[register]);
      }
      @ParameterizedTest
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
@@ -141,8 +216,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
      @Test
      void test_8xy2() {
          BaseChip8 mychip= new BaseChip8();
-         int vx =ThreadLocalRandom.current().nextInt(0, 256);
-         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         int vx = ThreadLocalRandom.current().nextInt(0, 256);
+         int vy = ThreadLocalRandom.current().nextInt(0, 256);
          mychip.registers.v[3]=vx;
          mychip.registers.v[4]=vy;
          mychip.cpu.decodeExecute(0x8342);
@@ -167,7 +242,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          mychip.registers.v[3]=vx;
          mychip.registers.v[4]=vy;
          mychip.cpu.decodeExecute(0x8344);
-         assertEquals(mychip.registers.v[3], vx + vy );
+         assertEquals(mychip.registers.v[3], (vx + vy) & 0xff );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
 

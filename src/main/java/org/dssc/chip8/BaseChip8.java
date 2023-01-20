@@ -1,13 +1,13 @@
 package org.dssc.chip8;
 import java.io.*;
 import java.util.stream.IntStream;
+import java.util.Stack;
 
 public class BaseChip8  {
     BaseKeyboard basekeyboard;
     RAM ram;
     Registers registers;
     Screen screen;
-    Stack stack;
     Timers timers;
     CPU cpu;
 

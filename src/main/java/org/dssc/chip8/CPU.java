@@ -1,13 +1,13 @@
 package org.dssc.chip8;
 
 import java.util.Objects;
-
+import java.util.Stack;
 class CPU {
     BaseKeyboard keyboard;
     RAM ram;
     Registers registers;
     Screen screen;
-    Stack stack;
+    Stack<Integer> stack;
     Timers timers;
     short  pc;
     //private Boolean[][]  chip8_pixels = new Boolean[64][32]; //
@@ -19,6 +19,7 @@ class CPU {
         this.registers=registers;
         this.screen=screen;
         this.timers=timers;
+        this.stack = new Stack<Integer>();
     }
 
      int fetch(){
@@ -37,9 +38,37 @@ class CPU {
         int nnn;
 
         switch (opcode & 0xf000) {
+            case 0x0000:
+                switch (opcode & 0x0fff) {
+                    case 0x00EE:
+                        // return from subroutine
+                        this.pc=this.stack.pop().shortValue();
+                        this.pc+=2;
+                        break;
+                    case 0x00E0:
+                        // clear display
+                        break;
+                    default:
+                        // if not 00E0 and 00EE, the opcode must be 0NNN
+                        // 0NNN call a subroutine at NNN
+                        nnn = opcode & 0x0fff;
+                        this.stack.push((int) this.pc);
+                        this.pc = (short) nnn;
+                        break;
+                }
+                break;
+            case 0x1000:
+                nnn = opcode & 0x0fff;
+                this.pc = (short) nnn;
+                break;
+            case 0x2000:
+                nnn = opcode & 0x0fff;
+                this.stack.push((int) this.pc);
+                this.pc = (short) nnn;
+                break;
             case  0x3000:
                 // 0x3xNN
-                x = (opcode & 0x0f00) >> 8;
+                x = (opcode & 0x0f00) >>> 8;
                 nn = opcode & 0x00ff;
                 if (this.registers.v[x] == nn)
                     this.pc+=2;
@@ -67,6 +96,7 @@ class CPU {
                 x = (opcode & 0x0f00) >> 8;
                 nn = opcode & 0x00ff;
                 this.registers.v[x] = nn;
+                this.pc+=2;
                 break;
 
             case  0x7000:
@@ -74,6 +104,8 @@ class CPU {
                 x = (opcode & 0x0f00) >> 8;
                 nn = opcode & 0x00ff;
                 this.registers.v[x] += nn;
+                this.registers.v[x] = this.registers.v[x] & 0xff; // in case of overflow !!
+                this.pc+=2;
                 break;
             case 0x8000:
                 switch (opcode & 0xf00f){
@@ -116,6 +148,7 @@ class CPU {
                         } else {
                             this.registers.v[0xf]  = 0;
                         }
+
                         this.pc+=2;
                         break;
                     case 0x8005:
@@ -123,37 +156,38 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         y = (opcode & 0x00f0) >> 4;
                         if (this.registers.v[x] > this.registers.v[y] ) {
-                            this.registers.v[0xf]=0; //ricontrollare se non è il contrario
-                        } else {
                             this.registers.v[0xf]=1;
+                        } else {
+                            this.registers.v[0xf]=0;
                         }
-                        this.registers.v[x]=this.registers.v[x] - this.registers.v[y];
+                        this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) ;
                         this.pc+=2;
                         break;
 
                     case 0x8006:
                         // 0x8xy6
                         x = (opcode & 0x0f00) >>> 8;
-                        this.registers.v[0xf] = this.registers.v[x] & 0x1;
+                        this.registers.v[0xf] = (this.registers.v[x] & 0x1);
                         this.registers.v[x] = this.registers.v[x] >>> 1;
                         this.pc+=2;
                         break;
+
                     case 0x8007:
                         // 0x8xy7
                         x = (opcode & 0x0f00) >> 8;
                         y = (opcode & 0x00f0) >> 4;
                         if (this.registers.v[y] > this.registers.v[x] ) {
-                            this.registers.v[0xf]=0;  //ricontrollare se non è il contrario
-                        } else {
                             this.registers.v[0xf] = 1;
+                        } else {
+                            this.registers.v[0xf] = 0;
                         }
-                        this.registers.v[x]=this.registers.v[y] - this.registers.v[x];
+                        this.registers.v[x]=(this.registers.v[y] - this.registers.v[x]) & 0xff;
                         this.pc+=2;
                         break;
                     case 0x800E:
                         // 0x8xyE
                         x = (opcode & 0x0f00) >> 8;
-                        this.registers.v[0xf] = this.registers.v[x] & 0x80;
+                        this.registers.v[0xf] = (this.registers.v[x] & 0x80) >>> 7;
                         this.registers.v[x] = this.registers.v[x] << 1;
                         this.pc+=2;
 
@@ -190,16 +224,43 @@ class CPU {
                 int Vy = this.registers.v[(opcode & 0x00f0) >> 4];
                 //this.renderSprite(Vx,Vy,N);
                 break;
+            case 0xE000:
+                switch (opcode & 0xf0ff) {
+                    case 0xE09E:
+                        x = (opcode & 0x0f00) >> 8;
+                        if (this.keyboard.key() == this.registers.v[x]) {
+                            this.pc +=2;
+                        }
+                        this.pc +=2;
+                        break;
+                    case 0xE0A1:
+                        x = (opcode & 0x0f00) >> 8;
+                        if (this.keyboard.key() != this.registers.v[x]) {
+                            this.pc +=2;
+                        }
+                        this.pc +=2;
+                        break;
+                }
+                break;
             case 0xF000:
                 switch (opcode & 0xf0ff) {
                     case 0xF007:
                         break;
                     case 0xF00A:
+                        x = (opcode & 0x0f00) >> 8;
+                        int key;
+                        while((key=this.keyboard.key()) == -1) {
+
+                        }
+                        this.registers.v[x]=key;
+                        this.pc+=2;
                         break;
+
                     case 0xF015:
                         break;
                     case 0xF018:
                         break;
+
                     case 0xF01E:
                         // 0xFx1E
                         x = (opcode & 0x0f00) >> 8;
@@ -207,8 +268,18 @@ class CPU {
                         this.pc +=2;
                         break;
                     case 0xF029:
+                        x = (opcode & 0x0f00) >> 8;
+                        this.i = this.registers.v[x] * 5 ;
                         break;
                     case 0xF033:
+                        x = (opcode & 0x0f00) >> 8;
+                        int value = this.registers.v[x];
+                        this.ram.memory[this.i + 2] = value % 10;
+                        value /= 10;
+                        this.ram.memory[this.i+ 1] = value % 10;
+                        value /= 10;
+                        this.ram.memory[this.i] = value % 10;
+
                         break;
 
                     case 0xF055:

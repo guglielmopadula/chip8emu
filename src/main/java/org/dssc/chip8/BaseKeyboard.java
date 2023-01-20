@@ -30,4 +30,16 @@ public class BaseKeyboard {
         map.put(86,15);
     }
 
+    void press(int keycode) {
+        this.internal_keyboard[this.map.get(keycode)]=true;
+        this.lastPressed=this.map.get(keycode);
+    }
+
+    void release(int keycode){
+        this.lastPressed=-1;
+        this.internal_keyboard[this.map.get(keycode)]=false;
+    }
+    int key() {
+        return this.lastPressed;
+    }
 }
