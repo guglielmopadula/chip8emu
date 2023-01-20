@@ -28,7 +28,8 @@ class CPU {
         int highByte = 0 ;
         lowByte = ram.memory[this.pc];
         highByte = ram.memory[this.pc+1];
-         opcode=((lowByte<<8) | highByte);
+         opcode=((lowByte<< 8 ) | (highByte ) );
+
         return opcode;
     }
 
@@ -46,7 +47,8 @@ class CPU {
                         this.pc+=2;
                         break;
                     case 0x00E0:
-                        // clear display
+                        this.screen.clear_screen();
+                        this.pc+=2;
                         break;
                     default:
                         // if not 00E0 and 00EE, the opcode must be 0NNN
@@ -167,7 +169,10 @@ class CPU {
                     case 0x8006:
                         // 0x8xy6
                         x = (opcode & 0x0f00) >>> 8;
-                        this.registers.v[0xf] = (this.registers.v[x] & 0x1);
+                        if ((this.registers.v[x] & 0x1) == 1)
+                            this.registers.v[0xf] = 1;
+                        else
+                            this.registers.v[0xf] = 0;
                         this.registers.v[x] = this.registers.v[x] >>> 1;
                         this.pc+=2;
                         break;
@@ -222,7 +227,8 @@ class CPU {
                 int N = opcode & 0x000f;
                 int Vx = this.registers.v[(opcode & 0x0f00) >> 8];
                 int Vy = this.registers.v[(opcode & 0x00f0) >> 4];
-                //this.renderSprite(Vx,Vy,N);
+                this.renderSprite(Vx,Vy,N,this.i);
+                this.pc+=2;
                 break;
             case 0xE000:
                 switch (opcode & 0xf0ff) {
@@ -250,15 +256,26 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         int key;
                         while((key=this.keyboard.key()) == -1) {
-
+                            try {
+                                Thread.sleep(0);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
+                        System.out.println("sono uscito");
                         this.registers.v[x]=key;
                         this.pc+=2;
                         break;
 
                     case 0xF015:
+                        x = (opcode & 0x0f00) >> 8;
+                        this.timers.Delaytimer=this.registers.v[x];
+                        this.pc+=2;
                         break;
                     case 0xF018:
+                        x = (opcode & 0x0f00) >> 8;
+                        this.timers.Soundtimer=this.registers.v[x];
+                        this.pc+=2;
                         break;
 
                     case 0xF01E:
@@ -270,16 +287,15 @@ class CPU {
                     case 0xF029:
                         x = (opcode & 0x0f00) >> 8;
                         this.i = this.registers.v[x] * 5 ;
+                        this.pc+=2;
                         break;
                     case 0xF033:
                         x = (opcode & 0x0f00) >> 8;
                         int value = this.registers.v[x];
-                        this.ram.memory[this.i + 2] = value % 10;
-                        value /= 10;
-                        this.ram.memory[this.i+ 1] = value % 10;
-                        value /= 10;
-                        this.ram.memory[this.i] = value % 10;
-
+                        this.ram.memory[this.i] = value / 100;
+                        this.ram.memory[this.i+ 1] = (value % 100)/10;
+                        this.ram.memory[this.i+ 2] = (value % 100)%10;
+                        this.pc+=2;
                         break;
 
                     case 0xF055:
@@ -287,14 +303,17 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         for(int counter=0;counter < x; counter++){
                             this.ram.memory[this.i + counter]=this.registers.v[counter];
+                            this.i +=1;
                         }
                         this.pc += 2;
+
                         break;
 
                     case 0xF065:
                         x = (opcode & 0x0f00) >> 8;
                         for(int counter=0;counter < x; counter++){
                             this.registers.v[counter] =  this.ram.memory[this.i + counter];
+                            this.i +=1;
                         }
                         this.pc += 2;
                         break;
@@ -306,12 +325,16 @@ class CPU {
 
 
     }
-    void renderSprite(int x, int y, int N){
-        //this.chip8_pixels[][];
-        //this.screen.render(chip8_pixels);
+    void renderSprite(int x, int y, int N, int I){
         for(int riga=0;riga<N;riga++){
+            int current_line = this.ram.memory[I+riga];
+
             for (int colonna=0;colonna<8;colonna++){
-                screen.DrawPixel(riga,colonna);
+                if ((current_line & (0x80 >> colonna)   ) != 0 ) {
+                    if (screen.getPixel(riga + y, colonna + x) == 1)
+                        this.registers.v[0xf] = 1;
+                    screen.DrawPixel(riga + y, colonna + x);
+                }
             }
         }
         //opzione 1 - this.screen.drawpixel()

@@ -1,6 +1,7 @@
 package org.dssc.chip8;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Chip8 extends BaseChip8{
     Keyboard keyboard;
@@ -17,8 +18,15 @@ public class Chip8 extends BaseChip8{
 
     }
     void setJavaComponents(){
-        JPanel p= new JPanel();
-        jFrame.setSize(12*62,12*31);
+        JPanel p= new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g){
+                super.paintComponent(g);
+                g.drawImage(screen.snapshot(),0,0,this);
+            }
+        };
+        jFrame.add(p);
+        jFrame.setSize(20*62,20*31);
         jFrame.addKeyListener(this.keyboard);
         jFrame.pack();
         jFrame.setVisible(true);

@@ -21,9 +21,10 @@ public class Screen {
         int[] temp= new int[32*64*scale*scale];
         Arrays.fill(temp,Color.BLACK.getRGB());
         backend.setRGB(0,0,64*scale,32*scale,temp,0, 64*scale);
+
     }
 
-    private void clear_screen(){
+    public void clear_screen(){
         int[] temp= new int[32*64*this.scale*this.scale];
         Arrays.fill(temp,Color.BLACK.getRGB());
         backend.setRGB(0,0,64*scale,32*scale,temp,0, 64*scale);
@@ -31,7 +32,7 @@ public class Screen {
     public void DrawPixel(int i, int j){
         int[] temp=new int[scale*scale];
         Arrays.fill(temp,Color.WHITE.getRGB());
-        backend.setRGB(i*scale,j*scale,scale,scale,temp,0, scale);
+        backend.setRGB(j*scale,i*scale,scale,scale,temp,0, scale);
     }
 
     public int getPixel(int i, int j){
