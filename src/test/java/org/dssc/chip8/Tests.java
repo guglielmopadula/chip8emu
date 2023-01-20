@@ -325,7 +325,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          BufferedImage Image1= screen1.snapshot();
          BufferedImage Image2 = new BufferedImage(64, 32,TYPE_BYTE_BINARY);
          Image2.setRGB(0, 0, Color.WHITE.getRGB());
-         Image2.setRGB(1, 0, Color.WHITE.getRGB());
+         Image2.setRGB(0, 1, Color.WHITE.getRGB());
          assertEquals(true,compareImages(Image1, Image2));
      }
 

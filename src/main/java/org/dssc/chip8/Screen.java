@@ -36,7 +36,7 @@ public class Screen {
     }
 
     public int getPixel(int i, int j){
-        return backend.getRGB(i*scale,j*scale);
+        return backend.getRGB(j*scale,i*scale);
     }
 
     public BufferedImage snapshot(){
