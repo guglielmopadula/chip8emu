@@ -6,6 +6,8 @@ import java.awt.*;
 public class Chip8 extends BaseChip8{
     Keyboard keyboard;
     JFrame jFrame;
+
+    JPanel panel;
     public Chip8(){
         super();
 
@@ -18,14 +20,14 @@ public class Chip8 extends BaseChip8{
 
     }
     void setJavaComponents(){
-        JPanel p= new JPanel() {
+         this.panel= new JPanel() {
             @Override
             protected void paintComponent(Graphics g){
                 super.paintComponent(g);
                 g.drawImage(screen.snapshot(),0,0,this);
             }
         };
-        jFrame.add(p);
+        jFrame.add(panel);
         jFrame.setSize(20*62,20*31);
         jFrame.addKeyListener(this.keyboard);
         jFrame.pack();
@@ -33,5 +35,30 @@ public class Chip8 extends BaseChip8{
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    public void startChip8(String filePath) {
+        Integer[] rom = readRomFromString(filePath);
+        loadRomToRam(rom);
+        this.cpu.pc=512;
+
+        int opcode = this.cpu.fetch();
+        while(opcode != 0x00FD) {
+            //System.out.printf("pc: %d, opcode: %d\n",this.cpu.pc,opcode);
+            if (this.cpu.registers.v[1]==199)
+                System.out.println(this.cpu.registers.v[1]);
+            this.cpu.decodeExecute(opcode);
+            opcode = this.cpu.fetch();
+            if (this.timers.Delaytimer>0) this.timers.Delaytimer-=1;
+            if (this.timers.Soundtimer>0) this.timers.Soundtimer-=1;
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            this.panel.repaint();
+        }
+
+
+
+    }
 
 }

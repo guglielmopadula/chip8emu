@@ -27,11 +27,16 @@ public class Screen {
     public void clear_screen(){
         int[] temp= new int[32*64*this.scale*this.scale];
         Arrays.fill(temp,Color.BLACK.getRGB());
-        backend.setRGB(0,0,64*scale,32*scale,temp,0, 64*scale);
+        backend.setRGB(0,0,64*scale,32*scale,temp,0, scale);
     }
     public void DrawPixel(int i, int j){
         int[] temp=new int[scale*scale];
         Arrays.fill(temp,Color.WHITE.getRGB());
+        backend.setRGB(j*scale,i*scale,scale,scale,temp,0, scale);
+    }
+    public void DrawPixel_black(int i, int j){
+        int[] temp=new int[scale*scale];
+        Arrays.fill(temp,Color.BLACK.getRGB());
         backend.setRGB(j*scale,i*scale,scale,scale,temp,0, scale);
     }
 

@@ -37,7 +37,6 @@ class CPU {
         int x,y;
         int nn;
         int nnn;
-
         switch (opcode & 0xf000) {
             case 0x0000:
                 switch (opcode & 0x0fff) {
@@ -48,6 +47,7 @@ class CPU {
                         break;
                     case 0x00E0:
                         this.screen.clear_screen();
+                        System.out.println("Clearing screen");
                         this.pc+=2;
                         break;
                     default:
@@ -162,7 +162,7 @@ class CPU {
                         } else {
                             this.registers.v[0xf]=0;
                         }
-                        this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) ;
+                        this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) & 0xff ;
                         this.pc+=2;
                         break;
 
@@ -192,8 +192,8 @@ class CPU {
                     case 0x800E:
                         // 0x8xyE
                         x = (opcode & 0x0f00) >> 8;
-                        this.registers.v[0xf] = (this.registers.v[x] & 0x80) >>> 7;
-                        this.registers.v[x] = this.registers.v[x] << 1;
+                        this.registers.v[0xf] = (this.registers.v[x] & 0x80) >>> 7; //(this.registers.v[x] >>> 7 ) == 0x1 ? 1 : 0;
+                        this.registers.v[x] = (this.registers.v[x] << 1) & 0xff;
                         this.pc+=2;
 
                         break;
@@ -251,6 +251,9 @@ class CPU {
             case 0xF000:
                 switch (opcode & 0xf0ff) {
                     case 0xF007:
+                        x = (opcode & 0x0f00) >> 8;
+                        this.registers.v[x]=this.timers.Delaytimer;
+                        this.pc+=2;
                         break;
                     case 0xF00A:
                         x = (opcode & 0x0f00) >> 8;
@@ -262,7 +265,6 @@ class CPU {
                                 throw new RuntimeException(e);
                             }
                         }
-                        System.out.println("sono uscito");
                         this.registers.v[x]=key;
                         this.pc+=2;
                         break;
@@ -289,21 +291,24 @@ class CPU {
                         this.i = this.registers.v[x] * 5 ;
                         this.pc+=2;
                         break;
+
                     case 0xF033:
                         x = (opcode & 0x0f00) >> 8;
                         int value = this.registers.v[x];
+
                         this.ram.memory[this.i] = value / 100;
                         this.ram.memory[this.i+ 1] = (value % 100)/10;
                         this.ram.memory[this.i+ 2] = (value % 100)%10;
+                        System.out.printf("%d %d %d",this.ram.memory[this.i],this.ram.memory[this.i+1],this.ram.memory[this.i+2]);
                         this.pc+=2;
                         break;
 
                     case 0xF055:
                         // 0xFx55
                         x = (opcode & 0x0f00) >> 8;
-                        for(int counter=0;counter < x; counter++){
+                        for(int counter=0;counter <= x; counter++){
                             this.ram.memory[this.i + counter]=this.registers.v[counter];
-                            this.i +=1;
+                            //this.i +=1;
                         }
                         this.pc += 2;
 
@@ -311,9 +316,9 @@ class CPU {
 
                     case 0xF065:
                         x = (opcode & 0x0f00) >> 8;
-                        for(int counter=0;counter < x; counter++){
+                        for(int counter=0;counter <= x; counter++){
                             this.registers.v[counter] =  this.ram.memory[this.i + counter];
-                            this.i +=1;
+                            //this.i +=1;
                         }
                         this.pc += 2;
                         break;
@@ -328,12 +333,15 @@ class CPU {
     void renderSprite(int x, int y, int N, int I){
         for(int riga=0;riga<N;riga++){
             int current_line = this.ram.memory[I+riga];
-
             for (int colonna=0;colonna<8;colonna++){
                 if ((current_line & (0x80 >> colonna)   ) != 0 ) {
-                    if (screen.getPixel(riga + y, colonna + x) == 1)
+                    if (screen.getPixel(riga + y, colonna + x) == 1) {
                         this.registers.v[0xf] = 1;
-                    screen.DrawPixel(riga + y, colonna + x);
+                        screen.DrawPixel_black(riga + y, colonna + x);
+                    }
+                    else {
+                        screen.DrawPixel(riga + y, colonna + x);
+                    }
                 }
             }
         }

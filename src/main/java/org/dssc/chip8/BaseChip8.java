@@ -23,20 +23,7 @@ public class BaseChip8  {
 
 
 
-        public void startChip8(String filePath) {
-         Integer[] rom = readRomFromString(filePath);
-         loadRomToRam(rom);
-         this.cpu.pc=512;
-         this.cpu.i=5;
-         int opcode = this.cpu.fetch();
-         while(opcode != 0x00FD) {
-            this.cpu.decodeExecute(opcode);
-            opcode = this.cpu.fetch();
-            if (this.timers.Delaytimer>0) this.timers.Delaytimer-=1;
-            if (this.timers.Soundtimer>0) this.timers.Soundtimer-=1;
-         }
 
-        }
 
        Integer[] readRomFromString(String filePath){
         File romFile=new File(filePath);
