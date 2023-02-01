@@ -335,7 +335,7 @@ class CPU {
             int current_line = this.ram.memory[I+riga];
             for (int colonna=0;colonna<8;colonna++){
                 if ((current_line & (0x80 >> colonna)   ) != 0 ) {
-                    if (screen.getPixel(riga + y, colonna + x) == 1) {
+                    if (screen.getPixel(riga + y, colonna + x) == -1) {
                         this.registers.v[0xf] = 1;
                         screen.DrawPixel_black(riga + y, colonna + x);
                     }
