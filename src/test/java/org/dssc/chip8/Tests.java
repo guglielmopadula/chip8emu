@@ -252,7 +252,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          mychip.registers.v[3]=0x001;
          mychip.registers.v[4]=0x009;
          mychip.cpu.decodeExecute(0x8345);
-         assertEquals(mychip.registers.v[3], 0x001 - 0x009 );
+         assertEquals(mychip.registers.v[3], (0x001 - 0x009)  & 0xff );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
      @Test
