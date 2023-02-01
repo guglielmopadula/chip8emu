@@ -2,6 +2,8 @@ package org.dssc.chip8;
 
 import java.util.Objects;
 import java.util.Stack;
+import java.awt.Color;
+
 class CPU {
     BaseKeyboard keyboard;
     RAM ram;
@@ -47,7 +49,6 @@ class CPU {
                         break;
                     case 0x00E0:
                         this.screen.clear_screen();
-                        System.out.println("Clearing screen");
                         this.pc+=2;
                         break;
                     default:
@@ -157,23 +158,30 @@ class CPU {
                         // 0x8xy5
                         x = (opcode & 0x0f00) >> 8;
                         y = (opcode & 0x00f0) >> 4;
-                        if (this.registers.v[x] > this.registers.v[y] ) {
+                        int tmpx = this.registers.v[x];
+                        int tmpy = this.registers.v[y];
+
+                        this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) & 0xff ;
+
+                        if (tmpx > tmpy) {
                             this.registers.v[0xf]=1;
                         } else {
                             this.registers.v[0xf]=0;
                         }
-                        this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) & 0xff ;
                         this.pc+=2;
                         break;
 
                     case 0x8006:
                         // 0x8xy6
                         x = (opcode & 0x0f00) >>> 8;
-                        if ((this.registers.v[x] & 0x1) == 1)
+                        tmpx = this.registers.v[x];
+
+                        this.registers.v[x] = this.registers.v[x] >>> 1;
+
+                        if ((tmpx& 0x1) == 1)
                             this.registers.v[0xf] = 1;
                         else
                             this.registers.v[0xf] = 0;
-                        this.registers.v[x] = this.registers.v[x] >>> 1;
                         this.pc+=2;
                         break;
 
@@ -181,19 +189,25 @@ class CPU {
                         // 0x8xy7
                         x = (opcode & 0x0f00) >> 8;
                         y = (opcode & 0x00f0) >> 4;
-                        if (this.registers.v[y] > this.registers.v[x] ) {
+
+                         tmpx = this.registers.v[x]; //must change this !!! only a test
+                         tmpy = this.registers.v[y];
+                        this.registers.v[x] = (this.registers.v[y] - this.registers.v[x]) & 0xff;
+
+                        if (tmpy > tmpx) {
                             this.registers.v[0xf] = 1;
                         } else {
                             this.registers.v[0xf] = 0;
                         }
-                        this.registers.v[x]=(this.registers.v[y] - this.registers.v[x]) & 0xff;
+
                         this.pc+=2;
                         break;
                     case 0x800E:
                         // 0x8xyE
                         x = (opcode & 0x0f00) >> 8;
-                        this.registers.v[0xf] = (this.registers.v[x] & 0x80) >>> 7; //(this.registers.v[x] >>> 7 ) == 0x1 ? 1 : 0;
+                        tmpx = this.registers.v[x];
                         this.registers.v[x] = (this.registers.v[x] << 1) & 0xff;
+                        this.registers.v[0xf] = (tmpx & 0x80) >>> 7; //(this.registers.v[x] >>> 7 ) == 0x1 ? 1 : 0;
                         this.pc+=2;
 
                         break;
@@ -223,13 +237,14 @@ class CPU {
                 this.pc +=2;
                 break;
             case 0XD000:
-                //this OPCODE will render a sprite
+                //this OPCODE will render a sprite, 0xDxun
                 int N = opcode & 0x000f;
                 int Vx = this.registers.v[(opcode & 0x0f00) >> 8];
                 int Vy = this.registers.v[(opcode & 0x00f0) >> 4];
                 this.renderSprite(Vx,Vy,N,this.i);
                 this.pc+=2;
                 break;
+
             case 0xE000:
                 switch (opcode & 0xf0ff) {
                     case 0xE09E:
@@ -258,12 +273,14 @@ class CPU {
                     case 0xF00A:
                         x = (opcode & 0x0f00) >> 8;
                         int key;
+                        int dummy=0;
                         while((key=this.keyboard.key()) == -1) {
                             try {
                                 Thread.sleep(0);
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
+
                         }
                         this.registers.v[x]=key;
                         this.pc+=2;
@@ -331,16 +348,17 @@ class CPU {
 
     }
     void renderSprite(int x, int y, int N, int I){
-        for(int riga=0;riga<N;riga++){
+        this.registers.v[0xf] = 0;
+        for(int riga=0;riga < N;riga++){
             int current_line = this.ram.memory[I+riga];
             for (int colonna=0;colonna<8;colonna++){
                 if ((current_line & (0x80 >> colonna)   ) != 0 ) {
-                    if (screen.getPixel(riga + y, colonna + x) == -1) {
+                    if (screen.getPixel((riga + y) % 32, (colonna + x) % 64)== -1) {
                         this.registers.v[0xf] = 1;
-                        screen.DrawPixel_black(riga + y, colonna + x);
+                        screen.DrawPixel_black((riga + y) % 32, (colonna + x) % 64);
                     }
                     else {
-                        screen.DrawPixel(riga + y, colonna + x);
+                        screen.DrawPixel((riga + y) % 32, (colonna + x) % 64);
                     }
                 }
             }
