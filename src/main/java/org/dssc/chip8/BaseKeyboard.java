@@ -12,22 +12,27 @@ public class BaseKeyboard {
     }
 
     void configureHashMap(HashMap<Integer,Integer> map){
-        map.put(49,0);
+        map.put(49,1);
         map.put(50,1);
-        map.put(51,2);
-        map.put(52,3);
+        map.put(51,3);
+        map.put(52,12); //C
+
         map.put(81,4);
         map.put(87,5);
         map.put(69,6);
-        map.put(82,7);
-        map.put(65,8);
-        map.put(83,9);
-        map.put(68,10);
-        map.put(70,11);
-        map.put(90,12);
-        map.put(88,13);
-        map.put(67,14);
-        map.put(86,15);
+        map.put(82,13); //D
+
+        map.put(65,7);
+        map.put(83,8);
+        map.put(68,9);
+        map.put(70,14); //E
+
+        map.put(90,10); //A
+        map.put(88,0); //zero
+        map.put(50,0);
+        map.put(67,11); //B
+        map.put(86,35); //F
+
     }
 
     void press(int keycode) {
