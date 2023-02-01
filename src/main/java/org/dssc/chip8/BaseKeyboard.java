@@ -12,8 +12,9 @@ public class BaseKeyboard {
     }
 
     void configureHashMap(HashMap<Integer,Integer> map){
+
         map.put(49,1);
-        map.put(50,1);
+        map.put(50,2);
         map.put(51,3);
         map.put(52,12); //C
 
@@ -29,10 +30,8 @@ public class BaseKeyboard {
 
         map.put(90,10); //A
         map.put(88,0); //zero
-        map.put(50,0);
         map.put(67,11); //B
-        map.put(86,35); //F
-
+        map.put(86,15); //F
     }
 
     void press(int keycode) {
