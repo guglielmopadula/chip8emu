@@ -30,6 +30,7 @@ public class Chip8 extends BaseChip8{
         jFrame.add(panel);
         jFrame.setSize(20*62,20*31);
         jFrame.addKeyListener(this.keyboard);
+        jFrame.setPreferredSize(new Dimension(500, 500));
         jFrame.pack();
         jFrame.setVisible(true);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,16 +46,20 @@ public class Chip8 extends BaseChip8{
             //System.out.printf("pc: %d, opcode: %d\n",this.cpu.pc,opcode);
             if (this.cpu.registers.v[1]==199)
                 System.out.println(this.cpu.registers.v[1]);
+
             this.cpu.decodeExecute(opcode);
             opcode = this.cpu.fetch();
-            if (this.timers.Delaytimer>0) this.timers.Delaytimer-=1;
+             if (this.timers.Delaytimer>0) this.timers.Delaytimer-=1;
             if (this.timers.Soundtimer>0) this.timers.Soundtimer-=1;
+            jFrame.repaint();
+
             try {
-                Thread.sleep(5);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            this.panel.repaint();
+
+
         }
 
 
