@@ -2,12 +2,12 @@ package org.dssc.chip8;
 import java.util.HashMap;
 
 public class BaseKeyboard {
-    boolean[] internal_keyboard;
+    boolean[] internalkeyboard;
     Integer lastPressed=-1;
     HashMap<Integer, Integer> map;
     public BaseKeyboard(){
-        this.internal_keyboard= new boolean[16];
-        this.map= new HashMap<Integer, Integer>();
+        this.internalkeyboard = new boolean[16];
+        this.map= new HashMap<>();
         configureHashMap(this.map);
     }
 
@@ -35,13 +35,13 @@ public class BaseKeyboard {
     }
 
     void press(int keycode) {
-        this.internal_keyboard[this.map.get(keycode)]=true;
+        this.internalkeyboard[this.map.get(keycode)]=true;
         this.lastPressed=this.map.get(keycode);
     }
 
     void release(int keycode){
         this.lastPressed=-1;
-        this.internal_keyboard[this.map.get(keycode)]=false;
+        this.internalkeyboard[this.map.get(keycode)]=false;
     }
     int key() {
         return this.lastPressed;

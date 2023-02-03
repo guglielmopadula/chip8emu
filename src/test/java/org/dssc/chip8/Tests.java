@@ -39,11 +39,11 @@ class Tests {
     }
 
     @Test
-    @Disabled
     void testClearRam() {
         RAM ram=new RAM();
         Integer[] temp=new Integer[4096];
         Arrays.fill(temp,(int) 0);
+        ram.clear();
         assertArrayEquals(ram.memory, temp);
     }
 

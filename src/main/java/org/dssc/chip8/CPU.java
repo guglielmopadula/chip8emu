@@ -1,18 +1,20 @@
 package org.dssc.chip8;
 
 import java.util.Objects;
-import java.util.Stack;
+import java.util.ArrayDeque;
 import java.security.SecureRandom;
+
+
+
 
 class CPU {
     BaseKeyboard keyboard;
     RAM ram;
     Registers registers;
     Screen screen;
-    Stack<Integer> stack;
+    ArrayDeque<Integer> stack;
     Timers timers;
     short  pc;
-    //private Boolean[][]  chip8_pixels = new Boolean[64][32]; //
     int i;
 
     SecureRandom rng;
@@ -22,7 +24,7 @@ class CPU {
         this.registers=registers;
         this.screen=screen;
         this.timers=timers;
-        this.stack = new Stack<Integer>();
+        this.stack = new ArrayDeque<>();
         this.rng= new SecureRandom();
     }
 
@@ -38,7 +40,11 @@ class CPU {
     }
 
     void decodeExecute(int opcode) {
-        int x,y;
+        int x;
+        int y;
+        int vx;
+        int vy;
+        int n;
         int nn;
         int nnn;
         switch (opcode & 0xf000) {
@@ -209,7 +215,7 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         tmpx = this.registers.v[x];
                         this.registers.v[x] = (this.registers.v[x] << 1) & 0xff;
-                        this.registers.v[0xf] = (tmpx & 0x80) >>> 7; //(this.registers.v[x] >>> 7 ) == 0x1 ? 1 : 0;
+                        this.registers.v[0xf] = (tmpx & 0x80) >>> 7;
                         this.pc+=2;
 
                         break;
@@ -240,10 +246,10 @@ class CPU {
                 break;
             case 0XD000:
                 //this OPCODE will render a sprite, 0xDxun
-                int N = opcode & 0x000f;
-                int Vx = this.registers.v[(opcode & 0x0f00) >> 8];
-                int Vy = this.registers.v[(opcode & 0x00f0) >> 4];
-                this.renderSprite(Vx,Vy,N,this.i);
+                n = opcode & 0x000f;
+                vx = this.registers.v[(opcode & 0x0f00) >> 8];
+                vy = this.registers.v[(opcode & 0x00f0) >> 4];
+                this.renderSprite(vx,vy,n,this.i);
                 this.pc+=2;
                 break;
 
@@ -314,11 +320,10 @@ class CPU {
 
                     case 0xF033:
                         x = (opcode & 0x0f00) >> 8;
-                        int value = this.registers.v[x];
-
-                        this.ram.memory[this.i] = value / 100;
-                        this.ram.memory[this.i+ 1] = (value % 100)/10;
-                        this.ram.memory[this.i+ 2] = (value % 100)%10;
+                        vx = this.registers.v[x];
+                        this.ram.memory[this.i] = vx / 100;
+                        this.ram.memory[this.i+ 1] = (vx % 100)/10;
+                        this.ram.memory[this.i+ 2] = (vx % 100)%10;
                         System.out.printf("%d %d %d",this.ram.memory[this.i],this.ram.memory[this.i+1],this.ram.memory[this.i+2]);
                         this.pc+=2;
                         break;
@@ -342,10 +347,14 @@ class CPU {
                         }
                         this.pc += 2;
                         break;
+                    default:
+                        throw new MessageException("File not found");
+
 
                 }
                 break;
-
+            default:
+                throw new MessageException("File not found");
         }
 
 

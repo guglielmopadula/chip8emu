@@ -1,7 +1,6 @@
 package org.dssc.chip8;
 import java.io.*;
 import java.util.stream.IntStream;
-import java.util.Stack;
 
 public class BaseChip8  {
     BaseKeyboard basekeyboard;
@@ -24,7 +23,6 @@ public class BaseChip8  {
 
 
 
-
        Integer[] readRomFromString(String filePath){
         File romFile=new File(filePath);
         try (DataInputStream romStream = new DataInputStream(
@@ -39,7 +37,7 @@ public class BaseChip8  {
                 romArrayObj[i++] = b & 0xff;
             return romArrayObj;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MessageException("File not found");
         }
     }
 
