@@ -33,7 +33,7 @@ public class Chip8 extends BaseChip8{
         jFrame.setPreferredSize(new Dimension(500, 500));
         jFrame.pack();
         jFrame.setVisible(true);
-        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jFrame.setDefaultCloseOperation(jFrame.EXIT_ON_CLOSE);
     }
 
     public void startChip8(String filePath) {
@@ -43,9 +43,6 @@ public class Chip8 extends BaseChip8{
 
         int opcode = this.cpu.fetch();
         while(opcode != 0x00FD) {
-            //System.out.printf("pc: %d, opcode: %d\n",this.cpu.pc,opcode);
-            if (this.cpu.registers.v[1]==199)
-                System.out.println(this.cpu.registers.v[1]);
 
             this.cpu.decodeExecute(opcode);
             opcode = this.cpu.fetch();
@@ -57,7 +54,7 @@ public class Chip8 extends BaseChip8{
                 Thread.sleep(1);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
+                throw new MessageException("failed to sleep thread");
             }
 
 

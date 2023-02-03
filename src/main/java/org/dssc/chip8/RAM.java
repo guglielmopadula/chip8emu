@@ -1,6 +1,4 @@
 package org.dssc.chip8;
-
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.Arrays;
 
  class RAM {
@@ -8,7 +6,7 @@ import java.util.Arrays;
     Integer[] memory = new Integer[4096];
 
     public void clear() {
-        Arrays.fill(memory, (int) 0);
+        Arrays.fill(memory, 0);
     }
     private void initFontSet() {
          Integer[] chip8Fontset =  {

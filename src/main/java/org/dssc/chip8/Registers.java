@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 
     void clear(){
-        Arrays.fill(v,(int) 0);
+        Arrays.fill(v, 0);
     }
 
      Registers(){

@@ -56,7 +56,7 @@ class CPU {
                         this.pc+=2;
                         break;
                     case 0x00E0:
-                        this.screen.clear_screen();
+                        this.screen.ClearScreen();
                         this.pc+=2;
                         break;
                     default:
@@ -281,13 +281,12 @@ class CPU {
                     case 0xF00A:
                         x = (opcode & 0x0f00) >> 8;
                         int key;
-                        int dummy=0;
                         while((key=this.keyboard.key()) == -1) {
                             try {
                                 Thread.sleep(0);
                             } catch (InterruptedException e) {
                                 Thread.currentThread().interrupt();
-                                throw new RuntimeException(e);
+                                throw new MessageException("Failed to sleep thread");
                             }
 
                         }
@@ -324,7 +323,6 @@ class CPU {
                         this.ram.memory[this.i] = vx / 100;
                         this.ram.memory[this.i+ 1] = (vx % 100)/10;
                         this.ram.memory[this.i+ 2] = (vx % 100)%10;
-                        System.out.printf("%d %d %d",this.ram.memory[this.i],this.ram.memory[this.i+1],this.ram.memory[this.i+2]);
                         this.pc+=2;
                         break;
 
@@ -333,7 +331,6 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         for(int counter=0;counter <= x; counter++){
                             this.ram.memory[this.i + counter]=this.registers.v[counter];
-                            //this.i +=1;
                         }
                         this.pc += 2;
 
@@ -343,7 +340,6 @@ class CPU {
                         x = (opcode & 0x0f00) >> 8;
                         for(int counter=0;counter <= x; counter++){
                             this.registers.v[counter] =  this.ram.memory[this.i + counter];
-                            //this.i +=1;
                         }
                         this.pc += 2;
                         break;
@@ -362,9 +358,9 @@ class CPU {
     void renderSprite(int x, int y, int N, int I){
         this.registers.v[0xf] = 0;
         for(int riga=0;riga < N;riga++){
-            int current_line = this.ram.memory[I+riga];
+            int currentline = this.ram.memory[I+riga];
             for (int colonna=0;colonna<8;colonna++){
-                if ((current_line & (0x80 >> colonna)   ) != 0 ) {
+                if ((currentline & (0x80 >> colonna)   ) != 0 ) {
                     if (screen.getPixel((riga + y) % 32, (colonna + x) % 64)== -1) {
                         this.registers.v[0xf] = 1;
                         screen.DrawPixel_black((riga + y) % 32, (colonna + x) % 64);
