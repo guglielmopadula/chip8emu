@@ -13,13 +13,11 @@ import java.util.List;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import static java.awt.image.BufferedImage.TYPE_BYTE_BINARY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.concurrent.ThreadLocalRandom;
 
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
- class Tests {
+class Tests {
      static boolean compareImages(BufferedImage Image1, BufferedImage Image2){
          int width=(int) Image1.getWidth();
          int height=(int) Image2.getHeight();
@@ -37,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         Registers reg=new Registers();
         Integer[] temp=new Integer[16];
         Arrays.fill(temp,(int) 0);
-        assertTrue(Arrays.equals(reg.v,temp));
+        assertArrayEquals(reg.v, temp);
     }
 
     @Test
@@ -46,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         RAM ram=new RAM();
         Integer[] temp=new Integer[4096];
         Arrays.fill(temp,(int) 0);
-        assertTrue(Arrays.equals(ram.memory,temp));
+        assertArrayEquals(ram.memory, temp);
     }
 
     @ParameterizedTest
@@ -86,16 +84,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
             Integer[] opcodes = new Integer[hexdump.length];
 
             for (int i=0;i < hexdump.length; i++) {
-                Integer opcode = mychip8.cpu.fetch();
+                int opcode = mychip8.cpu.fetch();
                 opcodes[i]=opcode;
                 mychip8.cpu.pc+=2;
             }
 
-            assertTrue(Arrays.equals(hexdump,opcodes));
+            assertArrayEquals(hexdump, opcodes);
         }
 
         catch (IOException e) {
-            assertTrue(false,"IO exception");
+            fail("IO exception");
             throw new IOException(e);
         }
 
@@ -435,14 +433,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          assertEquals(mychip.cpu.pc,  pc + 2 );
      }
 
-
      @Test
      void test_compare_images_true() {
          BufferedImage Image1 = new BufferedImage(10, 20,TYPE_BYTE_BINARY);
          Image1.setRGB(0, 0, Color.WHITE.getRGB());
          BufferedImage Image2 = new BufferedImage(10, 20, TYPE_BYTE_BINARY);
          Image2.setRGB(0, 0, Color.WHITE.getRGB());
-         assertEquals(true, compareImages(Image1, Image2));
+         assertTrue(compareImages(Image1, Image2));
      }
 
      @Test
@@ -451,13 +448,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          Image1.setRGB(0, 0, Color.WHITE.getRGB());
          BufferedImage Image2 = new BufferedImage(20, 10, TYPE_BYTE_BINARY);
          Image2.setRGB(0, 0, Color.BLACK.getRGB());
-         assertEquals(false,compareImages(Image1, Image2));
+         assertFalse(compareImages(Image1, Image2));
      }
      @Test
      void test_render_pixel(){
          Screen screen1= new Screen(1);
          screen1.DrawPixel(0,1);
-         assertEquals(true, Color.WHITE.getRGB()==screen1.getPixel(0,1));
+         assertEquals(Color.WHITE.getRGB(), screen1.getPixel(0, 1));
      }
      @Test
      void test_snapshot() {
@@ -468,8 +465,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          BufferedImage Image2 = new BufferedImage(64, 32,TYPE_BYTE_BINARY);
          Image2.setRGB(0, 0, Color.WHITE.getRGB());
          Image2.setRGB(0, 1, Color.WHITE.getRGB());
-         assertEquals(true,compareImages(Image1, Image2));
+         assertTrue(compareImages(Image1, Image2));
      }
 
 
  }
+
