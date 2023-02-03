@@ -39,7 +39,7 @@ public class BaseChip8  {
     }
 
      void loadRomToRam(Integer[] rom) {
-        IntStream.range(0,rom.length).forEach(i -> this.ram.memory[i+512]=rom[i]);
+        IntStream.range(0,rom.length).forEach(i -> this.ram.setAt(i+512,rom[i]));
     }
 
 }

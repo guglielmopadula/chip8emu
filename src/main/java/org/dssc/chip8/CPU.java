@@ -32,9 +32,9 @@ class CPU {
         int opcode = 0;
         int lowByte = 0;
         int highByte = 0 ;
-        lowByte = ram.memory[this.pc];
-        highByte = ram.memory[this.pc+1];
-         opcode=((lowByte<< 8 ) | (highByte ) );
+        lowByte = ram.getAt(this.pc);
+        highByte = ram.getAt(this.pc+1);
+        opcode=((lowByte<< 8 ) | (highByte ) );
 
         return new Opcode(opcode);
     }
@@ -177,16 +177,16 @@ class CPU {
 
             case 0xF033:
                 vx = this.registers.v[x];
-                this.ram.memory[this.i] = vx / 100;
-                this.ram.memory[this.i+ 1] = (vx % 100)/10;
-                this.ram.memory[this.i+ 2] = (vx % 100)%10;
+                this.ram.setAt(this.i,vx / 100);
+                this.ram.setAt(this.i+ 1,(vx % 100)/10);
+                this.ram.setAt(this.i+ 2,(vx % 100)%10);
                 this.pc+=2;
                 break;
 
             case 0xF055:
                 // 0xFx55
                 for(int counter=0;counter <= x; counter++){
-                    this.ram.memory[this.i + counter]=this.registers.v[counter];
+                    this.ram.setAt(this.i + counter,this.registers.v[counter]);
                 }
                 this.pc += 2;
 
@@ -194,7 +194,7 @@ class CPU {
 
             case 0xF065:
                 for(int counter=0;counter <= x; counter++){
-                    this.registers.v[counter] =  this.ram.memory[this.i + counter];
+                    this.registers.v[counter] =  this.ram.getAt(this.i + counter);
                 }
 
                 this.pc += 2;
@@ -340,7 +340,7 @@ class CPU {
         void renderSprite(int x, int y, int n, int i){
         this.registers.v[0xf] = 0;
         for(int riga=0;riga < n;riga++){
-            int currentline = this.ram.memory[i+riga];
+            int currentline = this.ram.getAt(i+riga);
             for (int colonna=0;colonna<8;colonna++){
                 if ((currentline & (0x80 >> colonna)   ) != 0 ) {
                     if (screen.getPixel((riga + y) % 32, (colonna + x) % 64)== -1) {

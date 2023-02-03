@@ -2,7 +2,7 @@ package org.dssc.chip8;
 import java.util.Arrays;
 
  class RAM  {
-    Integer[] memory = new Integer[4096];
+    private Integer[] memory = new Integer[4096];
 
     public void clear() {
         Arrays.fill(memory, 0);
@@ -33,5 +33,13 @@ import java.util.Arrays;
         this.initFontSet();
     }
 
+     public Integer getAt(int i) {
+         return this.memory[i];
+     }
 
-}
+     public void setAt(int i,Integer value) {
+         this.memory[i]=value;
+     }
+
+
+ }
