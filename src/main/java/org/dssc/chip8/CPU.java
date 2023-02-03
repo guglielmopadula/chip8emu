@@ -38,7 +38,6 @@ class CPU {
 
         return opcode;
     }
-
     void decodeExecute(int opcode) {
         int x;
         int y;
