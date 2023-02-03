@@ -1,5 +1,6 @@
 package org.dssc.chip8;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -39,13 +40,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         assertTrue(Arrays.equals(reg.v,temp));
     }
 
-    //@Test
-    //void testClearRam() {
-    //    RAM ram=new RAM();
-    //    Integer[] temp=new Integer[4096];
-    //    Arrays.fill(temp,(int) 0);
-    //    assertTrue(Arrays.equals(ram.memory,temp));
-    //}
+    @Test
+    @Disabled
+    void testClearRam() {
+        RAM ram=new RAM();
+        Integer[] temp=new Integer[4096];
+        Arrays.fill(temp,(int) 0);
+        assertTrue(Arrays.equals(ram.memory,temp));
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {"rom1", "rom2"})
@@ -123,7 +125,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          mychip.cpu.pc=99;
          mychip.cpu.decodeExecute(0x2000 | routineLocation);
          assertEquals(mychip.cpu.stack.pop(),99);
-
      }
      @Test
      void test_2NNN_pc(){
@@ -170,9 +171,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          assertEquals(mychip.cpu.pc,pcBefore + 4);
      }
 
+     @Test
+     void test_5xy0_equal(){
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.registers.v[1]= 0x23;
+         mychip.cpu.decodeExecute(0x5000 | 0x0000 | 0x0010);
+         assertEquals(mychip.cpu.pc,pcBefore + 4);
+     }
 
-
-
+     @Test
+     void test_5xy0_Nequal(){
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.registers.v[1]= 0x24;
+         mychip.cpu.decodeExecute(0x5000 | 0x0000 | 0x0010);
+         assertEquals(mychip.cpu.pc,pcBefore + 2);
+     }
 
      @ParameterizedTest
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
@@ -282,6 +299,106 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
 
+     @Test
+     void test_9xy0_equal() {
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.registers.v[2]=0x002;
+         mychip.registers.v[3]=0x002;
+         mychip.cpu.decodeExecute(0x9000 | 0x0200 | 0x0030);
+         assertEquals(mychip.cpu.pc,  pcBefore + 2);
+     }
+
+     @Test
+     void test_9xy0_Nequal() {
+         BaseChip8 mychip= new BaseChip8();
+         int pcBefore = mychip.cpu.pc;
+         mychip.registers.v[2]=0x002;
+         mychip.registers.v[3]=0x003;
+         mychip.cpu.decodeExecute(0x9000 | 0x0200 | 0x0030);
+         assertEquals(mychip.cpu.pc,  pcBefore + 4);
+     }
+
+     @Test
+     void test_Annn() {
+         BaseChip8 mychip= new BaseChip8();
+         mychip.cpu.decodeExecute(0xA000 | 0x0123);
+         assertEquals(mychip.cpu.i,  0x0123);
+     }
+
+     @Test
+     void test_Bnnn() {
+         BaseChip8 mychip= new BaseChip8();
+         mychip.cpu.registers.v[0]=0x1;
+         mychip.cpu.decodeExecute(0xB000 | 0x0123);
+         assertEquals(mychip.cpu.pc,  mychip.cpu.registers.v[0] + 0x0123);
+     }
+
+     @Test
+     void test_Fx15() {
+         BaseChip8 mychip= new BaseChip8();
+         mychip.cpu.registers.v[1]=10;
+         mychip.cpu.decodeExecute(0xF015 | 0x0100);
+         assertEquals(mychip.cpu.timers.Delaytimer ,  10);
+     }
+
+     @Test
+     void test_Fx18() {
+         BaseChip8 mychip= new BaseChip8();
+         mychip.cpu.registers.v[1]=10;
+         mychip.cpu.decodeExecute(0xF018 | 0x0100);
+         assertEquals(mychip.cpu.timers.Soundtimer ,  10);
+     }
+
+     @Test
+     void test_Fx1E() {
+         BaseChip8 mychip= new BaseChip8();
+         mychip.cpu.i=12;
+         mychip.cpu.registers.v[1]=10;
+         mychip.cpu.decodeExecute(0xF01E | 0x0100);
+         assertEquals(mychip.cpu.i,  22);
+     }
+
+     @Test
+     void test_Fx33() {
+         BaseChip8 mychip= new BaseChip8();
+         mychip.cpu.registers.v[6]=137;
+         mychip.cpu.i=0;
+         mychip.cpu.decodeExecute(0xF033 | 0x0600);
+         assertEquals(mychip.cpu.ram.memory[0],  1);
+         assertEquals(mychip.cpu.ram.memory[1],  3);
+         assertEquals(mychip.cpu.ram.memory[2],  7);
+     }
+
+     @Test
+     void test_Fx55() {
+         BaseChip8 mychip= new BaseChip8();
+         for(int counter=0;counter <= 0xF; counter++){
+             mychip.cpu.registers.v[counter]=99;
+         }
+         mychip.cpu.decodeExecute(0xF055 | 0x0F00);
+         for(int counter=0;counter <= 0xF; counter++){
+             assertEquals(mychip.cpu.ram.memory[counter],  99);
+         }
+
+     }
+
+     @Test
+     void test_Fx65() {
+         BaseChip8 mychip= new BaseChip8();
+         for(int counter=0;counter <= 0xF; counter++){
+             mychip.cpu.ram.memory[counter]=99;
+         }
+         mychip.cpu.decodeExecute(0xF065 | 0x0F00);
+         for(int counter=0;counter <= 0xF; counter++){
+             assertEquals(mychip.cpu.registers.v[counter],  99);
+         }
+
+     }
+
+
+
+
      @ParameterizedTest
      @ValueSource(ints = {0x8340, 0x8341,0x8342,0x8343,0x8344,0x8345,0x8346,0x8347,0x834E})
      void testPcAdvance8000(int opcode)  {
@@ -290,6 +407,34 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          mychip.cpu.decodeExecute(opcode);
          assertEquals(mychip.cpu.pc,  pc + 2 );
      }
+
+     @ParameterizedTest
+     @ValueSource(ints = {0xF007, 0xF015,0xF018,0xF01E,0xF029,0xF033,0xF055,0xF065})
+     void testPcAdvanceF000(int opcode)  {
+         BaseChip8 mychip= new BaseChip8();
+         short pc = mychip.cpu.pc;
+         mychip.cpu.decodeExecute(opcode);
+         assertEquals(mychip.cpu.pc,  pc + 2 );
+     }
+
+     @ParameterizedTest
+     @ValueSource(ints = {0xA000, 0xC000,0XD000,0xF01E,0xF029,0xF033,0xF055,0xF065})
+     void testPcAdvanceACD(int opcode)  {
+         BaseChip8 mychip= new BaseChip8();
+         short pc = mychip.cpu.pc;
+         mychip.cpu.decodeExecute(opcode);
+         assertEquals(mychip.cpu.pc,  pc + 2 );
+     }
+
+     @ParameterizedTest
+     @ValueSource(ints = {0x6000, 0x7000,0x00E0})
+     void testPcAdvanceMEM(int opcode)  {
+         BaseChip8 mychip= new BaseChip8();
+         short pc = mychip.cpu.pc;
+         mychip.cpu.decodeExecute(opcode);
+         assertEquals(mychip.cpu.pc,  pc + 2 );
+     }
+
 
      @Test
      void test_compare_images_true() {
@@ -314,9 +459,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          screen1.DrawPixel(0,1);
          assertEquals(true, Color.WHITE.getRGB()==screen1.getPixel(0,1));
      }
-
-
-
      @Test
      void test_snapshot() {
          Screen screen1 = new Screen(1);
@@ -328,8 +470,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
          Image2.setRGB(0, 1, Color.WHITE.getRGB());
          assertEquals(true,compareImages(Image1, Image2));
      }
-
-
 
 
  }
