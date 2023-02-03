@@ -210,12 +210,12 @@ class CPU {
     void decodeExecute(Opcode opcode) {
 
         int x = opcode.x();
-        int y =  opcode.y();;
+        int y =  opcode.y();
         int vx;
         int vy;
-        int n =  opcode.n();;
-        int nn =  opcode.nn();;
-        int nnn = opcode.nnn();;
+        int n =  opcode.n();
+        int nn =  opcode.nn();
+        int nnn = opcode.nnn();
 
         switch (opcode.value() & 0xf000) {
             case 0x0000:
