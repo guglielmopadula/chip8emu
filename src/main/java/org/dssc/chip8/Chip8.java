@@ -33,7 +33,7 @@ public class Chip8 extends BaseChip8{
         jFrame.setPreferredSize(new Dimension(500, 500));
         jFrame.pack();
         jFrame.setVisible(true);
-        jFrame.setDefaultCloseOperation(jFrame.EXIT_ON_CLOSE);
+            jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     public void startChip8(String filePath) {

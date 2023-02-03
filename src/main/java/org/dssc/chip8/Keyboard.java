@@ -9,7 +9,7 @@ public class Keyboard extends BaseKeyboard implements KeyListener {
     }
     @Override
     public void keyTyped(KeyEvent e) {
-
+        //Questa funzione è necessaria perchè KeyListener la vuole. Noi non la utilizziamo.
     }
 
     @Override

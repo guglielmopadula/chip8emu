@@ -453,14 +453,14 @@ class Tests {
      @Test
      void test_render_pixel(){
          Screen screen1= new Screen(1);
-         screen1.DrawPixel(0,1);
+         screen1.drawPixel(0,1,Color.WHITE);
          assertEquals(Color.WHITE.getRGB(), screen1.getPixel(0, 1));
      }
      @Test
      void test_snapshot() {
          Screen screen1 = new Screen(1);
-         screen1.DrawPixel(0, 0);
-         screen1.DrawPixel(1, 0);
+         screen1.drawPixel(0, 0,Color.WHITE);
+         screen1.drawPixel(1, 0,Color.WHITE);
          BufferedImage Image1= screen1.snapshot();
          BufferedImage Image2 = new BufferedImage(64, 32,TYPE_BYTE_BINARY);
          Image2.setRGB(0, 0, Color.WHITE.getRGB());

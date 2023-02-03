@@ -3,7 +3,7 @@ package org.dssc.chip8;
 import java.util.Objects;
 import java.util.ArrayDeque;
 import java.security.SecureRandom;
-
+import java.awt.Color;
 
 
 
@@ -56,7 +56,7 @@ class CPU {
                         this.pc+=2;
                         break;
                     case 0x00E0:
-                        this.screen.ClearScreen();
+                        this.screen.clearScreen();
                         this.pc+=2;
                         break;
                     default:
@@ -219,6 +219,8 @@ class CPU {
                         this.pc+=2;
 
                         break;
+                    default:
+                        throw new MessageException("opcode not found");
                 }
                 break;
             case 0x9000:
@@ -269,6 +271,8 @@ class CPU {
                         }
                         this.pc +=2;
                         break;
+                    default:
+                        throw new MessageException("opcode not found");
                 }
                 break;
             case 0xF000:
@@ -355,18 +359,18 @@ class CPU {
 
 
     }
-    void renderSprite(int x, int y, int N, int I){
+    void renderSprite(int x, int y, int n, int i){
         this.registers.v[0xf] = 0;
-        for(int riga=0;riga < N;riga++){
-            int currentline = this.ram.memory[I+riga];
+        for(int riga=0;riga < n;riga++){
+            int currentline = this.ram.memory[i+riga];
             for (int colonna=0;colonna<8;colonna++){
                 if ((currentline & (0x80 >> colonna)   ) != 0 ) {
                     if (screen.getPixel((riga + y) % 32, (colonna + x) % 64)== -1) {
                         this.registers.v[0xf] = 1;
-                        screen.DrawPixel_black((riga + y) % 32, (colonna + x) % 64);
+                        screen.drawPixel((riga + y) % 32, (colonna + x) % 64,Color.BLACK);
                     }
                     else {
-                        screen.DrawPixel((riga + y) % 32, (colonna + x) % 64);
+                        screen.drawPixel((riga + y) % 32, (colonna + x) % 64, Color.WHITE);
                     }
                 }
             }
