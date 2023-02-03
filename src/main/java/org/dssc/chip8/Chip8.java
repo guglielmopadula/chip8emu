@@ -56,6 +56,7 @@ public class Chip8 extends BaseChip8{
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }
 

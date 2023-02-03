@@ -2,7 +2,7 @@ package org.dssc.chip8;
 
 import java.util.Objects;
 import java.util.Stack;
-import java.awt.Color;
+import java.security.SecureRandom;
 
 class CPU {
     BaseKeyboard keyboard;
@@ -15,6 +15,7 @@ class CPU {
     //private Boolean[][]  chip8_pixels = new Boolean[64][32]; //
     int i;
 
+    SecureRandom rng;
     CPU(BaseKeyboard keyboard,RAM ram, Registers registers, Screen screen, Timers timers){
         this.keyboard=keyboard;
         this.ram=ram;
@@ -22,6 +23,7 @@ class CPU {
         this.screen=screen;
         this.timers=timers;
         this.stack = new Stack<Integer>();
+        this.rng= new SecureRandom();
     }
 
      int fetch(){
@@ -233,7 +235,7 @@ class CPU {
             case 0xC000:
                 // 0xCxNN
                 x = (opcode & 0x0f00) >> 8;
-                this.registers.v[x] = (int) (Math.random()*255) & (opcode & 0x00ff);
+                this.registers.v[x] =  (rng.nextInt(255)) & (opcode & 0x00ff);
                 this.pc +=2;
                 break;
             case 0XD000:
@@ -278,6 +280,7 @@ class CPU {
                             try {
                                 Thread.sleep(0);
                             } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
                                 throw new RuntimeException(e);
                             }
 
