@@ -1,6 +1,5 @@
 package org.dssc.chip8;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -122,7 +121,7 @@ class Tests {
          int routineLocation = 0x0123;
          mychip.cpu.pc=99;
          mychip.cpu.decodeExecute(0x2000 | routineLocation);
-         assertEquals(mychip.cpu.stack.pop(),99);
+         assertEquals(99,mychip.cpu.stack.pop());
      }
      @Test
      void test_2NNN_pc(){
@@ -130,7 +129,7 @@ class Tests {
          int routineLocation = 0x0123;
          mychip.cpu.pc=99;
          mychip.cpu.decodeExecute(0x2000 | routineLocation);
-         assertEquals(mychip.cpu.pc,0x0123);
+         assertEquals(0x0123,mychip.cpu.pc);
      }
 
      @Test
@@ -321,7 +320,7 @@ class Tests {
      void test_Annn() {
          BaseChip8 mychip= new BaseChip8();
          mychip.cpu.decodeExecute(0xA000 | 0x0123);
-         assertEquals(mychip.cpu.i,  0x0123);
+         assertEquals(0x0123,mychip.cpu.i );
      }
 
      @Test
@@ -337,7 +336,7 @@ class Tests {
          BaseChip8 mychip= new BaseChip8();
          mychip.cpu.registers.v[1]=10;
          mychip.cpu.decodeExecute(0xF015 | 0x0100);
-         assertEquals(mychip.cpu.timers.Delaytimer ,  10);
+         assertEquals(10,mychip.cpu.timers.delaytimer  );
      }
 
      @Test
@@ -345,7 +344,7 @@ class Tests {
          BaseChip8 mychip= new BaseChip8();
          mychip.cpu.registers.v[1]=10;
          mychip.cpu.decodeExecute(0xF018 | 0x0100);
-         assertEquals(mychip.cpu.timers.Soundtimer ,  10);
+         assertEquals(10,mychip.cpu.timers.soundtimer);
      }
 
      @Test
@@ -354,7 +353,7 @@ class Tests {
          mychip.cpu.i=12;
          mychip.cpu.registers.v[1]=10;
          mychip.cpu.decodeExecute(0xF01E | 0x0100);
-         assertEquals(mychip.cpu.i,  22);
+         assertEquals(22,mychip.cpu.i );
      }
 
      @Test
@@ -363,9 +362,9 @@ class Tests {
          mychip.cpu.registers.v[6]=137;
          mychip.cpu.i=0;
          mychip.cpu.decodeExecute(0xF033 | 0x0600);
-         assertEquals(mychip.cpu.ram.memory[0],  1);
-         assertEquals(mychip.cpu.ram.memory[1],  3);
-         assertEquals(mychip.cpu.ram.memory[2],  7);
+         assertEquals(1,mychip.cpu.ram.memory[0]);
+         assertEquals(3,mychip.cpu.ram.memory[1]);
+         assertEquals(7,mychip.cpu.ram.memory[2]);
      }
 
      @Test
@@ -376,7 +375,7 @@ class Tests {
          }
          mychip.cpu.decodeExecute(0xF055 | 0x0F00);
          for(int counter=0;counter <= 0xF; counter++){
-             assertEquals(mychip.cpu.ram.memory[counter],  99);
+             assertEquals(99,mychip.cpu.ram.memory[counter] );
          }
 
      }
@@ -389,7 +388,7 @@ class Tests {
          }
          mychip.cpu.decodeExecute(0xF065 | 0x0F00);
          for(int counter=0;counter <= 0xF; counter++){
-             assertEquals(mychip.cpu.registers.v[counter],  99);
+             assertEquals(99,mychip.cpu.registers.v[counter] );
          }
 
      }

@@ -46,8 +46,8 @@ public class Chip8 extends BaseChip8{
 
             this.cpu.decodeExecute(opcode);
             opcode = this.cpu.fetch();
-             if (this.timers.Delaytimer>0) this.timers.Delaytimer-=1;
-            if (this.timers.Soundtimer>0) this.timers.Soundtimer-=1;
+             if (this.timers.delaytimer >0) this.timers.delaytimer -=1;
+            if (this.timers.soundtimer >0) this.timers.soundtimer -=1;
             jFrame.repaint();
 
             try {

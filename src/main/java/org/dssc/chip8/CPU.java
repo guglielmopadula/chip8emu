@@ -279,7 +279,7 @@ class CPU {
                 switch (opcode & 0xf0ff) {
                     case 0xF007:
                         x = (opcode & 0x0f00) >> 8;
-                        this.registers.v[x]=this.timers.Delaytimer;
+                        this.registers.v[x]=this.timers.delaytimer;
                         this.pc+=2;
                         break;
                     case 0xF00A:
@@ -300,12 +300,12 @@ class CPU {
 
                     case 0xF015:
                         x = (opcode & 0x0f00) >> 8;
-                        this.timers.Delaytimer=this.registers.v[x];
+                        this.timers.delaytimer =this.registers.v[x];
                         this.pc+=2;
                         break;
                     case 0xF018:
                         x = (opcode & 0x0f00) >> 8;
-                        this.timers.Soundtimer=this.registers.v[x];
+                        this.timers.soundtimer =this.registers.v[x];
                         this.pc+=2;
                         break;
 
