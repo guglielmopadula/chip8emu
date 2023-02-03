@@ -38,6 +38,195 @@ class CPU {
 
         return opcode;
     }
+
+    void execute0x8000(int opcode){
+        int x;
+        int y;
+        switch (opcode & 0xf00f){
+            case 0x8000:
+                // 0x8xy0
+                x = (opcode & 0x0f00) >> 8;
+                y = (opcode & 0x00f0) >> 4;
+                this.registers.v[x]=this.registers.v[y];
+                this.pc+=2;
+                break;
+            case 0x8001:
+                // 0x8xy1
+                x = (opcode & 0x0f00) >> 8;
+                y = (opcode & 0x00f0) >> 4;
+                this.registers.v[x]=this.registers.v[x] | this.registers.v[y];
+                this.pc+=2;
+                break;
+            case 0x8002:
+                // 0x8xy2
+                x = (opcode & 0x0f00) >> 8;
+                y = (opcode & 0x00f0) >> 4;
+                this.registers.v[x]=this.registers.v[x] & this.registers.v[y];
+                this.pc+=2;
+                break;
+            case 0x8003:
+                // 0x8xy3
+                x = (opcode & 0x0f00) >> 8;
+                y = (opcode & 0x00f0) >> 4;
+                this.registers.v[x]=this.registers.v[x] ^ this.registers.v[y];
+                this.pc+=2;
+                break;
+            case 0x8004:
+                // 0x8xy4
+                x = (opcode & 0x0f00) >> 8;
+                y = (opcode & 0x00f0) >> 4;
+                this.registers.v[x]=this.registers.v[x] + this.registers.v[y];
+                if (this.registers.v[x] > 255) {
+                    this.registers.v[x] = this.registers.v[x] & 0xff;
+                    this.registers.v[0xf]  = 1;
+                } else {
+                    this.registers.v[0xf]  = 0;
+                }
+
+                this.pc+=2;
+                break;
+            case 0x8005:
+                // 0x8xy5
+                x = (opcode & 0x0f00) >> 8;
+                y = (opcode & 0x00f0) >> 4;
+                int tmpx = this.registers.v[x];
+                int tmpy = this.registers.v[y];
+
+                this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) & 0xff ;
+
+                if (tmpx > tmpy) {
+                    this.registers.v[0xf]=1;
+                } else {
+                    this.registers.v[0xf]=0;
+                }
+                this.pc+=2;
+                break;
+
+            case 0x8006:
+                // 0x8xy6
+                x = (opcode & 0x0f00) >>> 8;
+                tmpx = this.registers.v[x];
+
+                this.registers.v[x] = this.registers.v[x] >>> 1;
+
+                if ((tmpx& 0x1) == 1)
+                    this.registers.v[0xf] = 1;
+                else
+                    this.registers.v[0xf] = 0;
+                this.pc+=2;
+                break;
+
+            case 0x8007:
+                // 0x8xy7
+                x = (opcode & 0x0f00) >> 8;
+                y = (opcode & 0x00f0) >> 4;
+
+                tmpx = this.registers.v[x]; //must change this !!! only a test
+                tmpy = this.registers.v[y];
+                this.registers.v[x] = (this.registers.v[y] - this.registers.v[x]) & 0xff;
+
+                if (tmpy > tmpx) {
+                    this.registers.v[0xf] = 1;
+                } else {
+                    this.registers.v[0xf] = 0;
+                }
+
+                this.pc+=2;
+                break;
+            case 0x800E:
+                // 0x8xyE
+                x = (opcode & 0x0f00) >> 8;
+                tmpx = this.registers.v[x];
+                this.registers.v[x] = (this.registers.v[x] << 1) & 0xff;
+                this.registers.v[0xf] = (tmpx & 0x80) >>> 7;
+                this.pc+=2;
+
+                break;
+            default:
+                throw new MessageException("opcode not found");
+        }
+    }
+
+    void execute0xF000(int opcode){
+        int x;
+        int vx;
+        switch (opcode & 0xf0ff) {
+            case 0xF007:
+                x = (opcode & 0x0f00) >> 8;
+                this.registers.v[x]=this.timers.delaytimer;
+                this.pc+=2;
+                break;
+            case 0xF00A:
+                x = (opcode & 0x0f00) >> 8;
+                int key;
+                while((key=this.keyboard.key()) == -1) {
+                    try {
+                        Thread.sleep(0);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new MessageException("Failed to sleep thread");
+                    }
+
+                }
+                this.registers.v[x]=key;
+                this.pc+=2;
+                break;
+
+            case 0xF015:
+                x = (opcode & 0x0f00) >> 8;
+                this.timers.delaytimer =this.registers.v[x];
+                this.pc+=2;
+                break;
+            case 0xF018:
+                x = (opcode & 0x0f00) >> 8;
+                this.timers.soundtimer =this.registers.v[x];
+                this.pc+=2;
+                break;
+
+            case 0xF01E:
+                // 0xFx1E
+                x = (opcode & 0x0f00) >> 8;
+                this.i += this.registers.v[x];
+                this.pc +=2;
+                break;
+            case 0xF029:
+                x = (opcode & 0x0f00) >> 8;
+                this.i = this.registers.v[x] * 5 ;
+                this.pc+=2;
+                break;
+
+            case 0xF033:
+                x = (opcode & 0x0f00) >> 8;
+                vx = this.registers.v[x];
+                this.ram.memory[this.i] = vx / 100;
+                this.ram.memory[this.i+ 1] = (vx % 100)/10;
+                this.ram.memory[this.i+ 2] = (vx % 100)%10;
+                this.pc+=2;
+                break;
+
+            case 0xF055:
+                // 0xFx55
+                x = (opcode & 0x0f00) >> 8;
+                for(int counter=0;counter <= x; counter++){
+                    this.ram.memory[this.i + counter]=this.registers.v[counter];
+                }
+                this.pc += 2;
+
+                break;
+
+            case 0xF065:
+                x = (opcode & 0x0f00) >> 8;
+                for(int counter=0;counter <= x; counter++){
+                    this.registers.v[counter] =  this.ram.memory[this.i + counter];
+                }
+                this.pc += 2;
+                break;
+            default:
+                throw new MessageException("File not found");
+
+
+        }
+    }
     void decodeExecute(int opcode) {
         int x;
         int y;
@@ -118,109 +307,7 @@ class CPU {
                 this.pc+=2;
                 break;
             case 0x8000:
-                switch (opcode & 0xf00f){
-                    case 0x8000:
-                        // 0x8xy0
-                        x = (opcode & 0x0f00) >> 8;
-                        y = (opcode & 0x00f0) >> 4;
-                        this.registers.v[x]=this.registers.v[y];
-                        this.pc+=2;
-                        break;
-                    case 0x8001:
-                        // 0x8xy1
-                        x = (opcode & 0x0f00) >> 8;
-                        y = (opcode & 0x00f0) >> 4;
-                        this.registers.v[x]=this.registers.v[x] | this.registers.v[y];
-                        this.pc+=2;
-                        break;
-                    case 0x8002:
-                        // 0x8xy2
-                        x = (opcode & 0x0f00) >> 8;
-                        y = (opcode & 0x00f0) >> 4;
-                        this.registers.v[x]=this.registers.v[x] & this.registers.v[y];
-                        this.pc+=2;
-                        break;
-                    case 0x8003:
-                        // 0x8xy3
-                        x = (opcode & 0x0f00) >> 8;
-                        y = (opcode & 0x00f0) >> 4;
-                        this.registers.v[x]=this.registers.v[x] ^ this.registers.v[y];
-                        this.pc+=2;
-                        break;
-                    case 0x8004:
-                        // 0x8xy4
-                        x = (opcode & 0x0f00) >> 8;
-                        y = (opcode & 0x00f0) >> 4;
-                        this.registers.v[x]=this.registers.v[x] + this.registers.v[y];
-                        if (this.registers.v[x] > 255) {
-                            this.registers.v[x] = this.registers.v[x] & 0xff;
-                            this.registers.v[0xf]  = 1;
-                        } else {
-                            this.registers.v[0xf]  = 0;
-                        }
-
-                        this.pc+=2;
-                        break;
-                    case 0x8005:
-                        // 0x8xy5
-                        x = (opcode & 0x0f00) >> 8;
-                        y = (opcode & 0x00f0) >> 4;
-                        int tmpx = this.registers.v[x];
-                        int tmpy = this.registers.v[y];
-
-                        this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) & 0xff ;
-
-                        if (tmpx > tmpy) {
-                            this.registers.v[0xf]=1;
-                        } else {
-                            this.registers.v[0xf]=0;
-                        }
-                        this.pc+=2;
-                        break;
-
-                    case 0x8006:
-                        // 0x8xy6
-                        x = (opcode & 0x0f00) >>> 8;
-                        tmpx = this.registers.v[x];
-
-                        this.registers.v[x] = this.registers.v[x] >>> 1;
-
-                        if ((tmpx& 0x1) == 1)
-                            this.registers.v[0xf] = 1;
-                        else
-                            this.registers.v[0xf] = 0;
-                        this.pc+=2;
-                        break;
-
-                    case 0x8007:
-                        // 0x8xy7
-                        x = (opcode & 0x0f00) >> 8;
-                        y = (opcode & 0x00f0) >> 4;
-
-                         tmpx = this.registers.v[x]; //must change this !!! only a test
-                         tmpy = this.registers.v[y];
-                        this.registers.v[x] = (this.registers.v[y] - this.registers.v[x]) & 0xff;
-
-                        if (tmpy > tmpx) {
-                            this.registers.v[0xf] = 1;
-                        } else {
-                            this.registers.v[0xf] = 0;
-                        }
-
-                        this.pc+=2;
-                        break;
-                    case 0x800E:
-                        // 0x8xyE
-                        x = (opcode & 0x0f00) >> 8;
-                        tmpx = this.registers.v[x];
-                        this.registers.v[x] = (this.registers.v[x] << 1) & 0xff;
-                        this.registers.v[0xf] = (tmpx & 0x80) >>> 7;
-                        this.pc+=2;
-
-                        break;
-                    default:
-                        throw new MessageException("opcode not found");
-                }
+                execute0x8000(opcode);
                 break;
             case 0x9000:
                 // 0X9xy0
@@ -275,82 +362,7 @@ class CPU {
                 }
                 break;
             case 0xF000:
-                switch (opcode & 0xf0ff) {
-                    case 0xF007:
-                        x = (opcode & 0x0f00) >> 8;
-                        this.registers.v[x]=this.timers.delaytimer;
-                        this.pc+=2;
-                        break;
-                    case 0xF00A:
-                        x = (opcode & 0x0f00) >> 8;
-                        int key;
-                        while((key=this.keyboard.key()) == -1) {
-                            try {
-                                Thread.sleep(0);
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                throw new MessageException("Failed to sleep thread");
-                            }
-
-                        }
-                        this.registers.v[x]=key;
-                        this.pc+=2;
-                        break;
-
-                    case 0xF015:
-                        x = (opcode & 0x0f00) >> 8;
-                        this.timers.delaytimer =this.registers.v[x];
-                        this.pc+=2;
-                        break;
-                    case 0xF018:
-                        x = (opcode & 0x0f00) >> 8;
-                        this.timers.soundtimer =this.registers.v[x];
-                        this.pc+=2;
-                        break;
-
-                    case 0xF01E:
-                        // 0xFx1E
-                        x = (opcode & 0x0f00) >> 8;
-                        this.i += this.registers.v[x];
-                        this.pc +=2;
-                        break;
-                    case 0xF029:
-                        x = (opcode & 0x0f00) >> 8;
-                        this.i = this.registers.v[x] * 5 ;
-                        this.pc+=2;
-                        break;
-
-                    case 0xF033:
-                        x = (opcode & 0x0f00) >> 8;
-                        vx = this.registers.v[x];
-                        this.ram.memory[this.i] = vx / 100;
-                        this.ram.memory[this.i+ 1] = (vx % 100)/10;
-                        this.ram.memory[this.i+ 2] = (vx % 100)%10;
-                        this.pc+=2;
-                        break;
-
-                    case 0xF055:
-                        // 0xFx55
-                        x = (opcode & 0x0f00) >> 8;
-                        for(int counter=0;counter <= x; counter++){
-                            this.ram.memory[this.i + counter]=this.registers.v[counter];
-                        }
-                        this.pc += 2;
-
-                        break;
-
-                    case 0xF065:
-                        x = (opcode & 0x0f00) >> 8;
-                        for(int counter=0;counter <= x; counter++){
-                            this.registers.v[counter] =  this.ram.memory[this.i + counter];
-                        }
-                        this.pc += 2;
-                        break;
-                    default:
-                        throw new MessageException("File not found");
-
-
-                }
+                execute0xF000(opcode);
                 break;
             default:
                 throw new MessageException("File not found");
