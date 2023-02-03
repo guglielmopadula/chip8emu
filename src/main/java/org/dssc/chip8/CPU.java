@@ -1,5 +1,6 @@
 package org.dssc.chip8;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.ArrayDeque;
 import java.security.SecureRandom;
@@ -10,22 +11,23 @@ import java.awt.Color;
 class CPU {
     BaseKeyboard keyboard;
     RAM ram;
-    Registers registers;
     Screen screen;
     ArrayDeque<Integer> stack;
     Timers timers;
     short  pc;
     int i;
 
+    Integer[] vreg;
     SecureRandom rng;
-    CPU(BaseKeyboard keyboard,RAM ram, Registers registers, Screen screen, Timers timers){
+    CPU(BaseKeyboard keyboard,RAM ram, Screen screen, Timers timers){
         this.keyboard=keyboard;
         this.ram=ram;
-        this.registers=registers;
         this.screen=screen;
         this.timers=timers;
         this.stack = new ArrayDeque<>();
         this.rng= new SecureRandom();
+        this.vreg = new Integer[16];
+        Arrays.fill(this.vreg,0);
     }
 
      Opcode fetch(){
@@ -46,84 +48,84 @@ class CPU {
 
             case 0x8000:
                 // 0x8xy0
-                this.registers.v[x]=this.registers.v[y];
+                this.vreg[x]=this.vreg[y];
                 this.pc+=2;
                 break;
             case 0x8001:
                 // 0x8xy1
-                this.registers.v[x]=this.registers.v[x] | this.registers.v[y];
+                this.vreg[x]=this.vreg[x] | this.vreg[y];
                 this.pc+=2;
                 break;
             case 0x8002:
                 // 0x8xy2
-                this.registers.v[x]=this.registers.v[x] & this.registers.v[y];
+                this.vreg[x]=this.vreg[x] & this.vreg[y];
                 this.pc+=2;
                 break;
             case 0x8003:
                 // 0x8xy3
-                this.registers.v[x]=this.registers.v[x] ^ this.registers.v[y];
+                this.vreg[x]=this.vreg[x] ^ this.vreg[y];
                 this.pc+=2;
                 break;
             case 0x8004:
                 // 0x8xy4
-                this.registers.v[x]=this.registers.v[x] + this.registers.v[y];
-                if (this.registers.v[x] > 255) {
-                    this.registers.v[x] = this.registers.v[x] & 0xff;
-                    this.registers.v[0xf]  = 1;
+                this.vreg[x]=this.vreg[x] + this.vreg[y];
+                if (this.vreg[x] > 255) {
+                    this.vreg[x] = this.vreg[x] & 0xff;
+                    this.vreg[0xf]  = 1;
                 } else {
-                    this.registers.v[0xf]  = 0;
+                    this.vreg[0xf]  = 0;
                 }
 
                 this.pc+=2;
                 break;
             case 0x8005:
                 // 0x8xy5
-                int tmpx = this.registers.v[x];
-                int tmpy = this.registers.v[y];
+                int tmpx = this.vreg[x];
+                int tmpy = this.vreg[y];
 
-                this.registers.v[x]=(this.registers.v[x] - this.registers.v[y]) & 0xff ;
+                this.vreg[x]=(this.vreg[x] - this.vreg[y]) & 0xff ;
 
                 if (tmpx > tmpy) {
-                    this.registers.v[0xf]=1;
+                    this.vreg[0xf]=1;
                 } else {
-                    this.registers.v[0xf]=0;
+                    this.vreg[0xf]=0;
                 }
                 this.pc+=2;
                 break;
 
             case 0x8006:
                 // 0x8xy6
-                tmpx = this.registers.v[x];
+                tmpx = this.vreg[x];
 
-                this.registers.v[x] = this.registers.v[x] >>> 1;
+                this.vreg[x] = this.vreg[x] >>> 1;
 
                 if ((tmpx& 0x1) == 1)
-                    this.registers.v[0xf] = 1;
+                    this.vreg[0xf] = 1;
                 else
-                    this.registers.v[0xf] = 0;
+                    this.vreg[0xf] = 0;
                 this.pc+=2;
                 break;
 
             case 0x8007:
                 // 0x8xy7
 
-                tmpx = this.registers.v[x]; //must change this !!! only a test
-                tmpy = this.registers.v[y];
-                this.registers.v[x] = (this.registers.v[y] - this.registers.v[x]) & 0xff;
+                tmpx = this.vreg[x]; //must change this !!! only a test
+                tmpy = this.vreg[y];
+                this.vreg[x] = (this.vreg[y] - this.vreg[x]) & 0xff;
 
                 if (tmpy > tmpx) {
-                    this.registers.v[0xf] = 1;
+                    this.vreg[0xf] = 1;
                 } else {
-                    this.registers.v[0xf] = 0;
+                    this.vreg[0xf] = 0;
                 }
 
                 this.pc+=2;
                 break;
             case 0x800E:
                 // 0x8xyE
-                tmpx = this.registers.v[x];
-                this.registers.v[x] = (this.registers.v[x] << 1) & 0xff;
-                this.registers.v[0xf] = (tmpx & 0x80) >>> 7;
+                tmpx = this.vreg[x];
+                this.vreg[x] = (this.vreg[x] << 1) & 0xff;
+                this.vreg[0xf] = (tmpx & 0x80) >>> 7;
                 this.pc+=2;
 
                 break;
@@ -138,7 +140,7 @@ class CPU {
 
         switch (opcode.value() & 0xf0ff) {
             case 0xF007:
-                this.registers.v[x]=this.timers.delaytimer;
+                this.vreg[x]=this.timers.delaytimer;
                 this.pc+=2;
                 break;
             case 0xF00A:
@@ -152,31 +154,31 @@ class CPU {
                     }
 
                 }
-                this.registers.v[x]=key;
+                this.vreg[x]=key;
                 this.pc+=2;
                 break;
 
             case 0xF015:
-                this.timers.delaytimer =this.registers.v[x];
+                this.timers.delaytimer =this.vreg[x];
                 this.pc+=2;
                 break;
             case 0xF018:
-                this.timers.soundtimer =this.registers.v[x];
+                this.timers.soundtimer =this.vreg[x];
                 this.pc+=2;
                 break;
 
             case 0xF01E:
                 // 0xFx1E
-                this.i += this.registers.v[x];
+                this.i += this.vreg[x];
                 this.pc +=2;
                 break;
             case 0xF029:
-                this.i = this.registers.v[x] * 5 ;
+                this.i = this.vreg[x] * 5 ;
                 this.pc+=2;
                 break;
 
             case 0xF033:
-                vx = this.registers.v[x];
+                vx = this.vreg[x];
                 this.ram.setAt(this.i,vx / 100);
                 this.ram.setAt(this.i+ 1,(vx % 100)/10);
                 this.ram.setAt(this.i+ 2,(vx % 100)%10);
@@ -186,7 +188,7 @@ class CPU {
             case 0xF055:
                 // 0xFx55
                 for(int counter=0;counter <= x; counter++){
-                    this.ram.setAt(this.i + counter,this.registers.v[counter]);
+                    this.ram.setAt(this.i + counter,this.vreg[counter]);
                 }
                 this.pc += 2;
 
@@ -194,7 +196,7 @@ class CPU {
 
             case 0xF065:
                 for(int counter=0;counter <= x; counter++){
-                    this.registers.v[counter] =  this.ram.getAt(this.i + counter);
+                    this.vreg[counter] =  this.ram.getAt(this.i + counter);
                 }
 
                 this.pc += 2;
@@ -245,33 +247,33 @@ class CPU {
                 break;
             case  0x3000:
                 // 0x3xNN
-                if (this.registers.v[x] == nn)
+                if (this.vreg[x] == nn)
                     this.pc+=2;
                 this.pc+=2;
                 break;
             case  0x4000:
                 // 0x4xNN
-                if (this.registers.v[x] != nn)
+                if (this.vreg[x] != nn)
                     this.pc+=2;
                 this.pc+=2;
                 break;
             case  0x5000:
                 // 0x5xy0
-                if (Objects.equals(this.registers.v[x], this.registers.v[y]))
+                if (Objects.equals(this.vreg[x], this.vreg[y]))
                     this.pc+=2;
                 this.pc+=2;
                 break;
 
             case  0x6000:
                 // 0x6xNN
-                this.registers.v[x] = nn;
+                this.vreg[x] = nn;
                 this.pc+=2;
                 break;
 
             case  0x7000:
                 // 0x7xNN
-                this.registers.v[x] += nn;
-                this.registers.v[x] = this.registers.v[x] & 0xff; // in case of overflow !!
+                this.vreg[x] += nn;
+                this.vreg[x] = this.vreg[x] & 0xff; // in case of overflow !!
                 this.pc+=2;
                 break;
             case 0x8000:
@@ -279,7 +281,7 @@ class CPU {
                 break;
             case 0x9000:
                 // 0X9xy0
-                if (!Objects.equals(this.registers.v[x], this.registers.v[y]))
+                if (!Objects.equals(this.vreg[x], this.vreg[y]))
                     this.pc+=2;
                 this.pc+=2;
                 break;
@@ -290,17 +292,17 @@ class CPU {
                 break;
             case 0xB000:
                 // 0xBNNN
-                this.pc =(short) (this.registers.v[0] + (opcode.nnn()));
+                this.pc =(short) (this.vreg[0] + (opcode.nnn()));
                 break;
             case 0xC000:
                 // 0xCxNN
-                this.registers.v[x] =  (rng.nextInt(255)) & (opcode.nn());
+                this.vreg[x] =  (rng.nextInt(255)) & (opcode.nn());
                 this.pc +=2;
                 break;
             case 0XD000:
                 //this OPCODE will render a sprite, 0xDxun
-                vx = this.registers.v[x];
-                vy = this.registers.v[y];
+                vx = this.vreg[x];
+                vy = this.vreg[y];
                 this.renderSprite(vx,vy,n,this.i);
                 this.pc+=2;
                 break;
@@ -308,13 +310,13 @@ class CPU {
             case 0xE000:
                 switch (opcode.value() & 0xf0ff) {
                     case 0xE09E:
-                        if (this.keyboard.key() == this.registers.v[x]) {
+                        if (this.keyboard.key() == this.vreg[x]) {
                             this.pc +=2;
                         }
                         this.pc +=2;
                         break;
                     case 0xE0A1:
-                        if (this.keyboard.key() != this.registers.v[x]) {
+                        if (this.keyboard.key() != this.vreg[x]) {
                             this.pc +=2;
                         }
                         this.pc +=2;
@@ -338,13 +340,13 @@ class CPU {
 
     }
         void renderSprite(int x, int y, int n, int i){
-        this.registers.v[0xf] = 0;
+        this.vreg[0xf] = 0;
         for(int riga=0;riga < n;riga++){
             int currentline = this.ram.getAt(i+riga);
             for (int colonna=0;colonna<8;colonna++){
                 if ((currentline & (0x80 >> colonna)   ) != 0 ) {
                     if (screen.getPixel((riga + y) % 32, (colonna + x) % 64)== -1) {
-                        this.registers.v[0xf] = 1;
+                        this.vreg[0xf] = 1;
                         screen.drawPixel((riga + y) % 32, (colonna + x) % 64,Color.BLACK);
                     }
                     else {
@@ -353,6 +355,7 @@ class CPU {
                 }
             }
         }
+
         //opzione 1 - this.screen.drawpixel()
         //opzione 2 - scrivo solo su chip8_pixel poi faccio una routine che renderizza a 30 FPS
         //opzione 3 - a ogni draw scrivo tutto quanto

@@ -5,7 +5,6 @@ import java.util.stream.IntStream;
 public class BaseChip8  {
     BaseKeyboard basekeyboard;
     RAM ram;
-    Registers registers;
     Screen screen;
     Timers timers;
     CPU cpu;
@@ -13,10 +12,9 @@ public class BaseChip8  {
       BaseChip8(){
         this.basekeyboard=new BaseKeyboard();
         this.ram=new RAM();
-        this.registers=new Registers();
         this.screen=new Screen(5); // extract this MAGIC number !
         this.timers=new Timers();
-        this.cpu=new CPU(basekeyboard,ram,registers,screen,timers);
+        this.cpu=new CPU(basekeyboard,ram,screen,timers);
 
     }
 

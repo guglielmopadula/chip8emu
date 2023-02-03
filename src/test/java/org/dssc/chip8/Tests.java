@@ -30,24 +30,7 @@ class Tests {
          return flag;
      }
 
-    @Test
-    void testClearRegister(){
-        Registers reg=new Registers();
-        Integer[] temp=new Integer[16];
-        Arrays.fill(temp,(int) 0);
-        assertArrayEquals(reg.v, temp);
-    }
-
-    @Test
-    @Disabled
-    void testClearRam() {
-        RAM ram=new RAM();
-        Integer[] temp=new Integer[4096];
-        Arrays.fill(temp,(int) 0);
-        ram.clear();
-        //assertArrayEquals(ram.memory, temp);
-    }
-
+     
     @ParameterizedTest
     @ValueSource(strings = {"rom1", "rom2"})
     void testReadRomFromString(String rom) throws IOException {
@@ -138,7 +121,7 @@ class Tests {
      void test_3xNN_equal(){
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.vreg[0]= 0x23;
          mychip.cpu.decodeExecute(0x3000 | 0x0023);
          assertEquals(mychip.cpu.pc,pcBefore + 4);
      }
@@ -147,7 +130,7 @@ class Tests {
      void test_3xNN_Nequal(){
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.registers.v[0]= 0x22;
+         mychip.cpu.vreg[0]= 0x22;
          mychip.cpu.decodeExecute(0x3000 | 0x0023);
          assertEquals(mychip.cpu.pc,pcBefore + 2);
      }
@@ -156,7 +139,7 @@ class Tests {
      void test_4xNN_equal(){
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.vreg[0]= 0x23;
          mychip.cpu.decodeExecute(0x4000 | 0x0023);
          assertEquals(mychip.cpu.pc,pcBefore + 2);
      }
@@ -165,7 +148,7 @@ class Tests {
      void test_4xNN_Nequal(){
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.registers.v[0]= 0x23;
+         mychip.cpu.vreg[0]= 0x23;
          mychip.cpu.decodeExecute(0x4000 | 0x0022);
          assertEquals(mychip.cpu.pc,pcBefore + 4);
      }
@@ -174,8 +157,8 @@ class Tests {
      void test_5xy0_equal(){
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.registers.v[0]= 0x23;
-         mychip.cpu.registers.v[1]= 0x23;
+         mychip.cpu.vreg[0]= 0x23;
+         mychip.cpu.vreg[1]= 0x23;
          mychip.cpu.decodeExecute(0x5000 | 0x0000 | 0x0010);
          assertEquals(mychip.cpu.pc,pcBefore + 4);
      }
@@ -184,8 +167,8 @@ class Tests {
      void test_5xy0_Nequal(){
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.registers.v[0]= 0x23;
-         mychip.cpu.registers.v[1]= 0x24;
+         mychip.cpu.vreg[0]= 0x23;
+         mychip.cpu.vreg[1]= 0x24;
          mychip.cpu.decodeExecute(0x5000 | 0x0000 | 0x0010);
          assertEquals(mychip.cpu.pc,pcBefore + 2);
      }
@@ -196,16 +179,16 @@ class Tests {
          BaseChip8 mychip= new BaseChip8();
          int nn = ThreadLocalRandom.current().nextInt(0, 256);
          mychip.cpu.decodeExecute(0x6000 | nn | (register << 8) );
-        assertEquals(nn, mychip.registers.v[register]);
+        assertEquals(nn, mychip.cpu.vreg[register]);
     }
      @ParameterizedTest
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
      void test_7xnn(int register) {
          BaseChip8 mychip= new BaseChip8();
          int nn = ThreadLocalRandom.current().nextInt(0, 256);
-         mychip.registers.v[register]=nn;
+         mychip.cpu.vreg[register]=nn;
          mychip.cpu.decodeExecute(0x7000 | nn | (register << 8));
-         assertEquals((nn + nn) & 0xff, mychip.registers.v[register]);
+         assertEquals((nn + nn) & 0xff, mychip.cpu.vreg[register]);
      }
      @ParameterizedTest
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
@@ -213,10 +196,10 @@ class Tests {
          BaseChip8 mychip= new BaseChip8();
          int vx =ThreadLocalRandom.current().nextInt(0, 256);
          int vy =ThreadLocalRandom.current().nextInt(0, 256);
-         mychip.registers.v[register]=vx;
-         mychip.registers.v[4]=vy;
+         mychip.cpu.vreg[register]=vx;
+         mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8040 | (register << 8));
-         assertEquals(mychip.registers.v[4], mychip.registers.v[register]);
+         assertEquals(mychip.cpu.vreg[4], mychip.cpu.vreg[register]);
      }
 
      @Test
@@ -224,20 +207,20 @@ class Tests {
          BaseChip8 mychip= new BaseChip8();
          int vx =ThreadLocalRandom.current().nextInt(0, 256);
          int vy =ThreadLocalRandom.current().nextInt(0, 256);
-         mychip.registers.v[3]=vx;
-         mychip.registers.v[4]=vy;
+         mychip.cpu.vreg[3]=vx;
+         mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8341);
-         assertEquals(mychip.registers.v[3], vx | vy );
+         assertEquals(mychip.cpu.vreg[3], vx | vy );
      }
      @Test
      void test_8xy2() {
          BaseChip8 mychip= new BaseChip8();
          int vx = ThreadLocalRandom.current().nextInt(0, 256);
          int vy = ThreadLocalRandom.current().nextInt(0, 256);
-         mychip.registers.v[3]=vx;
-         mychip.registers.v[4]=vy;
+         mychip.cpu.vreg[3]=vx;
+         mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8342);
-         assertEquals(mychip.registers.v[3], vx & vy );
+         assertEquals(mychip.cpu.vreg[3], vx & vy );
      }
 
      @Test
@@ -245,56 +228,56 @@ class Tests {
          BaseChip8 mychip= new BaseChip8();
          int vx =ThreadLocalRandom.current().nextInt(0, 256);
          int vy =ThreadLocalRandom.current().nextInt(0, 256);
-         mychip.registers.v[3]=vx;
-         mychip.registers.v[4]=vy;
+         mychip.cpu.vreg[3]=vx;
+         mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8343);
-         assertEquals(mychip.registers.v[3], vx ^ vy );
+         assertEquals(mychip.cpu.vreg[3], vx ^ vy );
      }
      @Test
      void test_8xy4() {
          BaseChip8 mychip= new BaseChip8();
          int vx =ThreadLocalRandom.current().nextInt(0, 256);
          int vy =ThreadLocalRandom.current().nextInt(0, 256);
-         mychip.registers.v[3]=vx;
-         mychip.registers.v[4]=vy;
+         mychip.cpu.vreg[3]=vx;
+         mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8344);
-         assertEquals(mychip.registers.v[3], (vx + vy) & 0xff );
+         assertEquals(mychip.cpu.vreg[3], (vx + vy) & 0xff );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
 
      @Test
      void test_8xy5() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.registers.v[4]=0x009;
+         mychip.cpu.vreg[3]=0x001;
+         mychip.cpu.vreg[4]=0x009;
          mychip.cpu.decodeExecute(0x8345);
-         assertEquals(mychip.registers.v[3], (0x001 - 0x009)  & 0xff );
+         assertEquals(mychip.cpu.vreg[3], (0x001 - 0x009)  & 0xff );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
      @Test
      void test_8xy6() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
+         mychip.cpu.vreg[3]=0x001;
          mychip.cpu.decodeExecute(0x8346);
-         assertEquals(mychip.registers.v[3], 0x001 >>> 1);
+         assertEquals(mychip.cpu.vreg[3], 0x001 >>> 1);
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
      @Test
      void test_8xy7() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
-         mychip.registers.v[4]=0x009;
+         mychip.cpu.vreg[3]=0x001;
+         mychip.cpu.vreg[4]=0x009;
          mychip.cpu.decodeExecute(0x8347);
-         assertEquals(mychip.registers.v[3],  0x009 -0x001 );
+         assertEquals(mychip.cpu.vreg[3],  0x009 -0x001 );
 
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
      @Test
      void test_8xyE() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.registers.v[3]=0x001;
+         mychip.cpu.vreg[3]=0x001;
          mychip.cpu.decodeExecute(0x834E);
-         assertEquals(mychip.registers.v[3],  0x001 << 1 );
+         assertEquals(mychip.cpu.vreg[3],  0x001 << 1 );
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
 
@@ -302,8 +285,8 @@ class Tests {
      void test_9xy0_equal() {
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.registers.v[2]=0x002;
-         mychip.registers.v[3]=0x002;
+         mychip.cpu.vreg[2]=0x002;
+         mychip.cpu.vreg[3]=0x002;
          mychip.cpu.decodeExecute(0x9000 | 0x0200 | 0x0030);
          assertEquals(mychip.cpu.pc,  pcBefore + 2);
      }
@@ -312,8 +295,8 @@ class Tests {
      void test_9xy0_Nequal() {
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.registers.v[2]=0x002;
-         mychip.registers.v[3]=0x003;
+         mychip.cpu.vreg[2]=0x002;
+         mychip.cpu.vreg[3]=0x003;
          mychip.cpu.decodeExecute(0x9000 | 0x0200 | 0x0030);
          assertEquals(mychip.cpu.pc,  pcBefore + 4);
      }
@@ -328,15 +311,15 @@ class Tests {
      @Test
      void test_Bnnn() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.cpu.registers.v[0]=0x1;
+         mychip.cpu.vreg[0]=0x1;
          mychip.cpu.decodeExecute(0xB000 | 0x0123);
-         assertEquals(mychip.cpu.pc,  mychip.cpu.registers.v[0] + 0x0123);
+         assertEquals(mychip.cpu.pc,  mychip.cpu.vreg[0] + 0x0123);
      }
 
      @Test
      void test_Fx15() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.cpu.registers.v[1]=10;
+         mychip.cpu.vreg[1]=10;
          mychip.cpu.decodeExecute(0xF015 | 0x0100);
          assertEquals(10,mychip.cpu.timers.delaytimer  );
      }
@@ -344,7 +327,7 @@ class Tests {
      @Test
      void test_Fx18() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.cpu.registers.v[1]=10;
+         mychip.cpu.vreg[1]=10;
          mychip.cpu.decodeExecute(0xF018 | 0x0100);
          assertEquals(10,mychip.cpu.timers.soundtimer);
      }
@@ -353,7 +336,7 @@ class Tests {
      void test_Fx1E() {
          BaseChip8 mychip= new BaseChip8();
          mychip.cpu.i=12;
-         mychip.cpu.registers.v[1]=10;
+         mychip.cpu.vreg[1]=10;
          mychip.cpu.decodeExecute(0xF01E | 0x0100);
          assertEquals(22,mychip.cpu.i );
      }
@@ -361,7 +344,7 @@ class Tests {
      @Test
      void test_Fx33() {
          BaseChip8 mychip= new BaseChip8();
-         mychip.cpu.registers.v[6]=137;
+         mychip.cpu.vreg[6]=137;
          mychip.cpu.i=0;
          mychip.cpu.decodeExecute(0xF033 | 0x0600);
          assertEquals(1,mychip.cpu.ram.getAt(0));
@@ -373,7 +356,7 @@ class Tests {
      void test_Fx55() {
          BaseChip8 mychip= new BaseChip8();
          for(int counter=0;counter <= 0xF; counter++){
-             mychip.cpu.registers.v[counter]=99;
+             mychip.cpu.vreg[counter]=99;
          }
          mychip.cpu.decodeExecute(0xF055 | 0x0F00);
          for(int counter=0;counter <= 0xF; counter++){
@@ -390,7 +373,7 @@ class Tests {
          }
          mychip.cpu.decodeExecute(0xF065 | 0x0F00);
          for(int counter=0;counter <= 0xF; counter++){
-             assertEquals(99,mychip.cpu.registers.v[counter] );
+             assertEquals(99,mychip.cpu.vreg[counter] );
          }
 
      }
@@ -431,7 +414,6 @@ class Tests {
          mychip.cpu.decodeExecute(opcode);
          assertEquals(mychip.cpu.pc,  pc + 2 );
      }
-
      @Test
      void test_compare_images_true() {
          BufferedImage Image1 = new BufferedImage(10, 20,TYPE_BYTE_BINARY);
