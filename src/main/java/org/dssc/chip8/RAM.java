@@ -1,8 +1,7 @@
 package org.dssc.chip8;
 import java.util.Arrays;
 
- class RAM {
-
+ class RAM  {
     Integer[] memory = new Integer[4096];
 
     public void clear() {
@@ -33,4 +32,6 @@ import java.util.Arrays;
         this.clear();
         this.initFontSet();
     }
+
+
 }

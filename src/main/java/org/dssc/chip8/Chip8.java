@@ -41,8 +41,8 @@ public class Chip8 extends BaseChip8{
         loadRomToRam(rom);
         this.cpu.pc=512;
 
-        int opcode = this.cpu.fetch();
-        while(opcode != 0x00FD) {
+        Opcode opcode = this.cpu.fetch();
+        while(opcode.value() != 0x00FD) {
 
             this.cpu.decodeExecute(opcode);
             opcode = this.cpu.fetch();

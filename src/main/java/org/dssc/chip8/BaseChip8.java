@@ -20,9 +20,6 @@ public class BaseChip8  {
 
     }
 
-
-
-
        Integer[] readRomFromString(String filePath){
         File romFile=new File(filePath);
         try (DataInputStream romStream = new DataInputStream(

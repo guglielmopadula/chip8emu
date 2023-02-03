@@ -83,8 +83,8 @@ class Tests {
             Integer[] opcodes = new Integer[hexdump.length];
 
             for (int i=0;i < hexdump.length; i++) {
-                int opcode = mychip8.cpu.fetch();
-                opcodes[i]=opcode;
+                Opcode opcode = mychip8.cpu.fetch();
+                opcodes[i]=opcode.value();
                 mychip8.cpu.pc+=2;
             }
 
