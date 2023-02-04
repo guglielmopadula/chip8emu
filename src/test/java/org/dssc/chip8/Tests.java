@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.awt.*;
@@ -479,9 +480,73 @@ class Tests {
          }  );
      }
 
-
-
      @Test
+     @Disabled
+     void test_keyboard0xf007_stop(){
+         //disable, since that the test can't fail
+         BaseChip8 mychip= new BaseChip8();
+         mychip.basekeyboard.press(49);
+         assertTimeout(Duration.ofSeconds(3),() -> {
+             mychip.cpu.decodeExecute(0xF00A);
+         });
+     }
+    @Test
+    void test_keyboard0xf007_press(){
+        //disable, since that the test can't fail
+        BaseChip8 mychip= new BaseChip8();
+        mychip.basekeyboard.press(49);
+        mychip.cpu.decodeExecute(0xF00A);
+        assertEquals(mychip.cpu.vreg[0],1);
+    }
+
+    @Test
+    void test_keyboard0xE09E_equal(){
+        //disable, since that the test can't fail
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        mychip.basekeyboard.press(49);
+        mychip.cpu.vreg[0]=1;
+        mychip.cpu.decodeExecute(0xE09E);
+        assertEquals(pcBefore+4,mychip.cpu.pc);
+    }
+    @Test
+    void test_keyboard0xE09E_Nequal(){
+        //disable, since that the test can't fail
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        mychip.basekeyboard.press(51);
+        mychip.cpu.vreg[0]=1;
+        mychip.cpu.decodeExecute(0xE09E);
+        assertEquals(pcBefore+2,mychip.cpu.pc);
+    }
+
+    @Test
+    void test_keyboard0xE0A1_equal(){
+        //disable, since that the test can't fail
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        mychip.basekeyboard.press(49);
+        mychip.cpu.vreg[0]=1;
+        mychip.cpu.decodeExecute(0xE0A1);
+        assertEquals(pcBefore+2,mychip.cpu.pc);
+    }
+
+    @Test
+    void test_keyboard0xE0A1_Nequal(){
+        //disable, since that the test can't fail
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        mychip.basekeyboard.press(51);
+        mychip.cpu.vreg[0]=1;
+        mychip.cpu.decodeExecute(0xE0A1);
+        assertEquals(pcBefore+4,mychip.cpu.pc);
+    }
+
+
+
+
+
+    @Test
      void test_compare_images_true() {
          BufferedImage Image1 = new BufferedImage(10, 20,TYPE_BYTE_BINARY);
          Image1.setRGB(0, 0, Color.WHITE.getRGB());
