@@ -262,7 +262,6 @@ class Tests {
         setRegister(mychip,4,vy);
         mychip.cpu.decodeExecute(0x8344);
         assertEquals(getRegister(mychip,3), (vx + vy) & 0xff );
-        //aggiungere test per il carry, non sono sicuro che funzioni attualmente
     }
 
     @Test
@@ -326,7 +325,6 @@ class Tests {
         setRegister(mychip,3,0x001);
         mychip.cpu.decodeExecute(0x8346);
         assertEquals(getRegister(mychip,3), 0x001 >>> 1);
-        //aggiungere test per il carry, non sono sicuro che funzioni attualmente
     }
     @Test
     void test8xy7() {
@@ -336,7 +334,6 @@ class Tests {
         mychip.cpu.decodeExecute(0x8347);
         assertEquals(0x009 -0x001,getRegister(mychip,3) );
 
-        //aggiungere test per il carry, non sono sicuro che funzioni attualmente
     }
     @Test
     void test8xyE() {
@@ -344,7 +341,6 @@ class Tests {
         setRegister(mychip,3,0x001);
         mychip.cpu.decodeExecute(0x834E);
         assertEquals(getRegister(mychip,3),  0x001 << 1 );
-        //aggiungere test per il carry, non sono sicuro che funzioni attualmente
     }
 
      @Test
@@ -500,7 +496,6 @@ class Tests {
     }
     @Test
     void test0xF007press(){
-        //disable, since that the test can't fail
         BaseChip8 mychip= new BaseChip8();
         mychip.basekeyboard.press(49);
         mychip.cpu.decodeExecute(0xF00A);
