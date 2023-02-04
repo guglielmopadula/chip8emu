@@ -273,9 +273,9 @@ class Tests {
         mychip.cpu.vreg[4]=current_value; //y reg
         mychip.cpu.decodeExecute(0x8345);
         if (125 > current_value)
-            assertEquals(mychip.cpu.vreg[0xf], 1 );
+            assertEquals(1 ,mychip.cpu.vreg[0xf]);
         else
-            assertEquals(mychip.cpu.vreg[0xf], 0 );
+            assertEquals(0,mychip.cpu.vreg[0xf]  );
      }
 
     @RepeatedTest(255)
@@ -285,9 +285,9 @@ class Tests {
         mychip.cpu.vreg[3]=current_value; //y reg
         mychip.cpu.decodeExecute(0x8306);
         if ((current_value & 0x1)==1)
-            assertEquals(mychip.cpu.vreg[0xf], 1 );
+            assertEquals(1,mychip.cpu.vreg[0xf]  );
         else
-            assertEquals(mychip.cpu.vreg[0xf], 0 );
+            assertEquals(0,mychip.cpu.vreg[0xf]  );
     }
 
     @RepeatedTest(255)
@@ -298,9 +298,9 @@ class Tests {
         mychip.cpu.vreg[4]=current_value; //y reg
         mychip.cpu.decodeExecute(0x8347);
         if (current_value > 125)
-            assertEquals(mychip.cpu.vreg[0xf], 1 );
+            assertEquals(1,mychip.cpu.vreg[0xf] );
         else
-            assertEquals(mychip.cpu.vreg[0xf], 0 );
+            assertEquals(0,mychip.cpu.vreg[0xf] );
     }
     @RepeatedTest(255)
     void test_8xyECF(RepetitionInfo repetitionInfo) {
@@ -325,7 +325,7 @@ class Tests {
          mychip.cpu.vreg[3]=0x001;
          mychip.cpu.vreg[4]=0x009;
          mychip.cpu.decodeExecute(0x8347);
-         assertEquals(mychip.cpu.vreg[3],  0x009 -0x001 );
+         assertEquals(0x009 -0x001,mychip.cpu.vreg[3] );
 
          //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
@@ -481,9 +481,8 @@ class Tests {
      }
 
      @Test
-     @Disabled
+     @Disabled("Disable, since the test can't fail")
      void test_keyboard0xf007_stop(){
-         //disable, since that the test can't fail
          BaseChip8 mychip= new BaseChip8();
          mychip.basekeyboard.press(49);
          assertTimeout(Duration.ofSeconds(3),() -> {
@@ -496,7 +495,7 @@ class Tests {
         BaseChip8 mychip= new BaseChip8();
         mychip.basekeyboard.press(49);
         mychip.cpu.decodeExecute(0xF00A);
-        assertEquals(mychip.cpu.vreg[0],1);
+        assertEquals(1,mychip.cpu.vreg[0]);
     }
 
     @Test

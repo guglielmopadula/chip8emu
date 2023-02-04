@@ -36,35 +36,44 @@ public class Chip8 extends BaseChip8{
             jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
+
     public void startChip8(String filePath) {
         Integer[] rom = readRomFromString(filePath);
         loadRomToRam(rom);
         this.cpu.pc=512;
 
         Opcode opcode = this.cpu.fetch();
+        long time = System.nanoTime();
+        long rendertime= System.nanoTime();
         while(opcode.value() != 0x00FD) {
-
             this.cpu.decodeExecute(opcode);
             opcode = this.cpu.fetch();
-             if (this.timers.delaytimer >0) this.timers.delaytimer -=1;
+            if (this.timers.delaytimer >0) this.timers.delaytimer -=1;
             if (this.timers.soundtimer >0) {
                 this.timers.soundtimer -=1;
                 Toolkit.getDefaultToolkit().beep();
             }
-            jFrame.repaint();
 
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new MessageException("failed to sleep thread");
+            //if ((opcode & 0xf000) == 0xd000) {
+            //}
+
+            if (System.nanoTime() - rendertime > 160000000 ) {
+                jFrame.repaint();
+                rendertime= System.nanoTime();
             }
 
-
+            while (System.nanoTime() - time < 3500000 ) {
+                try {
+                    Thread.sleep(0);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new MessageException("failed to sleep thread");
+                }
+            }
+            time = System.nanoTime();
         }
 
-
-
     }
+
 
 }
