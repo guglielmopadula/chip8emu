@@ -1,11 +1,13 @@
 package org.dssc.chip8;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.ArrayDeque;
 import java.security.SecureRandom;
 import java.awt.Color;
-
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 
 class CPU {
@@ -16,6 +18,15 @@ class CPU {
     Timers timers;
     short  pc;
     int i;
+
+    HashMap<Integer,generalExecute> opcodemap;
+    private interface generalExecute {
+
+        // Method signatures of pointed method
+
+        void execute(Opcode opcode);
+
+    }
 
     Integer[] vreg;
     SecureRandom rng;
@@ -28,9 +39,39 @@ class CPU {
         this.rng= new SecureRandom();
         this.vreg = new Integer[16];
         Arrays.fill(this.vreg,0);
+        this.opcodemap = new HashMap<>();
+        configureHashMap(this.opcodemap);
+
     }
 
-     Opcode fetch(){
+    void configureHashMap(HashMap<Integer,generalExecute> map){
+
+        map.put(0x0000,this::execute0x0000);
+        map.put(0x1000,this::execute0x1000);
+        map.put(0x2000,this::execute0x2000);
+        map.put(0x3000,this::execute0x3000);
+        map.put(0x4000,this::execute0x4000);
+        map.put(0x5000,this::execute0x5000);
+        map.put(0x6000,this::execute0x6000);
+        map.put(0x7000,this::execute0x7000);
+        map.put(0x8000,this::execute0x8000);
+        map.put(0x9000,this::execute0x9000);
+        map.put(0xA000,this::execute0xA000);
+        map.put(0xB000,this::execute0xB000);
+        map.put(0xC000,this::execute0xC000);
+        map.put(0xD000,this::execute0xD000);
+        map.put(0xE000,this::execute0xE000);
+        map.put(0xF000,this::execute0xF000);
+
+
+
+
+
+
+
+    }
+
+    Opcode fetch(){
         int opcode = 0;
         int lowByte = 0;
         int highByte = 0 ;
@@ -41,9 +82,81 @@ class CPU {
         return new Opcode(opcode);
     }
 
+
+    void execute0x0000(Opcode opcode){
+        int nnn;
+        switch (opcode.value() & 0x0fff) {
+            case 0x00EE:
+                // return from subroutine
+                this.pc=this.stack.pop().shortValue();
+                this.pc+=2;
+                break;
+            case 0x00E0:
+                this.screen.clearScreen();
+                this.pc+=2;
+                break;
+            default:
+                // if not 00E0 and 00EE, the opcode must be 0NNN
+                // 0NNN call a subroutine at NNN
+                nnn = opcode.nnn();
+                this.stack.push((int) this.pc);
+                this.pc = (short) nnn;
+                break;
+        }
+    }
+
+    void execute0x1000(Opcode opcode) {
+       this.pc = (short) opcode.nnn();;
+    }
+
+    void execute0x2000(Opcode opcode){
+        this.stack.push((int) this.pc);
+        this.pc = (short) opcode.nnn();
+    }
+
+    void execute0x3000(Opcode opcode){
+        int x = opcode.x();
+        int nn = opcode.nn();
+        if (this.vreg[opcode.x()] == opcode.nn())
+            this.pc+=2;
+        this.pc+=2;
+    }
+    void execute0x4000(Opcode opcode){
+        if (this.vreg[opcode.x()] != opcode.nn())
+            this.pc+=2;
+        this.pc+=2;
+    }
+
+
+    void execute0x5000(Opcode opcode) {
+        if (Objects.equals(this.vreg[opcode.x()], this.vreg[opcode.y()]))
+            this.pc += 2;
+        this.pc += 2;
+    }
+
+    void execute0x6000(Opcode opcode) {
+        this.vreg[opcode.x()] = opcode.nn();
+        this.pc+=2;
+    }
+
+
+    void execute0x7000(Opcode opcode) {
+        int x = opcode.x();
+        this.vreg[x] += opcode.nn();
+        this.vreg[x] = this.vreg[x] & 0xff; // in case of overflow !!
+        this.pc+=2;
+    }
+
+
+
+
+
+
     void execute0x8000(Opcode opcode){
         int x = opcode.x();
         int y = opcode.y();
+        int vx;
+        int vy;
         switch (opcode.value() & 0xf00f){
 
             case 0x8000:
@@ -80,12 +193,12 @@ class CPU {
                 break;
             case 0x8005:
                 // 0x8xy5
-                int tmpx = this.vreg[x];
-                int tmpy = this.vreg[y];
+                vx = this.vreg[x];
+                vy = this.vreg[y];
 
                 this.vreg[x]=(this.vreg[x] - this.vreg[y]) & 0xff ;
 
-                if (tmpx > tmpy) {
+                if (vx > vy) {
                     this.vreg[0xf]=1;
                 } else {
                     this.vreg[0xf]=0;
@@ -95,11 +208,11 @@ class CPU {
 
             case 0x8006:
                 // 0x8xy6
-                tmpx = this.vreg[x];
+                vx = this.vreg[x];
 
                 this.vreg[x] = this.vreg[x] >>> 1;
 
-                if ((tmpx& 0x1) == 1)
+                if ((vx& 0x1) == 1)
                     this.vreg[0xf] = 1;
                 else
                     this.vreg[0xf] = 0;
@@ -109,11 +222,11 @@ class CPU {
             case 0x8007:
                 // 0x8xy7
 
-                tmpx = this.vreg[x]; //must change this !!! only a test
-                tmpy = this.vreg[y];
+                vx = this.vreg[x]; //must change this !!! only a test
+                vy = this.vreg[y];
                 this.vreg[x] = (this.vreg[y] - this.vreg[x]) & 0xff;
 
-                if (tmpy > tmpx) {
+                if (vy > vx) {
                     this.vreg[0xf] = 1;
                 } else {
                     this.vreg[0xf] = 0;
@@ -123,9 +236,9 @@ class CPU {
                 break;
             case 0x800E:
                 // 0x8xyE
-                tmpx = this.vreg[x];
+                vx = this.vreg[x];
                 this.vreg[x] = (this.vreg[x] << 1) & 0xff;
-                this.vreg[0xf] = (tmpx & 0x80) >>> 7;
+                this.vreg[0xf] = (vx & 0x80) >>> 7;
                 this.pc+=2;
 
                 break;
@@ -133,6 +246,54 @@ class CPU {
                 throw new MessageException("opcode not found");
         }
     }
+
+
+    void execute0x9000(Opcode opcode) {
+        if (!Objects.equals(this.vreg[opcode.x()], this.vreg[opcode.y()]))
+            this.pc+=2;
+        this.pc+=2;
+    }
+
+    void execute0xA000(Opcode opcode) {
+        this.i = opcode.nnn();
+        this.pc +=2;
+    }
+
+    void execute0xB000(Opcode opcode) {
+        this.pc =(short) (this.vreg[0] + (opcode.nnn()));
+    }
+
+    void execute0xC000(Opcode opcode) {
+        this.vreg[opcode.x()] =  (rng.nextInt(255)) & (opcode.nn());
+        this.pc +=2;    }
+
+    void execute0xD000(Opcode opcode) {
+        int vx = this.vreg[opcode.x()];
+        int vy = this.vreg[opcode.y()];
+        this.renderSprite(vx, vy, opcode.n(), this.i);
+        this.pc += 2;
+
+    }
+    void execute0xE000(Opcode opcode) {
+       int x=opcode.x();
+        switch (opcode.value() & 0xf0ff) {
+            case 0xE09E:
+                if (this.keyboard.key() == this.vreg[x]) {
+                    this.pc += 2;
+                }
+                this.pc += 2;
+                break;
+            case 0xE0A1:
+                if (this.keyboard.key() != this.vreg[x]) {
+                    this.pc += 2;
+                }
+                this.pc += 2;
+                break;
+            default:
+                throw new MessageException("opcode not found");
+        }
+    }
+
 
     void execute0xF000(Opcode opcode){
         int x = opcode.x();
@@ -187,18 +348,13 @@ class CPU {
 
             case 0xF055:
                 // 0xFx55
-                for(int counter=0;counter <= x; counter++){
-                    this.ram.setAt(this.i + counter,this.vreg[counter]);
-                }
+                IntStream.range(0,x+1).forEach(counter-> this.ram.setAt(this.i + counter,this.vreg[counter]));
                 this.pc += 2;
 
                 break;
 
             case 0xF065:
-                for(int counter=0;counter <= x; counter++){
-                    this.vreg[counter] =  this.ram.getAt(this.i + counter);
-                }
-
+                IntStream.range(0,x+1).forEach(counter->   this.vreg[counter] =  this.ram.getAt(this.i + counter));
                 this.pc += 2;
                 break;
             default:
@@ -209,128 +365,9 @@ class CPU {
     }
     void decodeExecute(Opcode opcode) {
 
-        int x = opcode.x();
-        int y =  opcode.y();
-        int vx;
-        int vy;
-        int n =  opcode.n();
-        int nn =  opcode.nn();
-        int nnn = opcode.nnn();
+        this.opcodemap.get(opcode.value() & 0xf000).execute(opcode);
 
-        switch (opcode.value() & 0xf000) {
-            case 0x0000:
-                switch (opcode.value() & 0x0fff) {
-                    case 0x00EE:
-                        // return from subroutine
-                        this.pc=this.stack.pop().shortValue();
-                        this.pc+=2;
-                        break;
-                    case 0x00E0:
-                        this.screen.clearScreen();
-                        this.pc+=2;
-                        break;
-                    default:
-                        // if not 00E0 and 00EE, the opcode must be 0NNN
-                        // 0NNN call a subroutine at NNN
-                        nnn = opcode.nnn();
-                        this.stack.push((int) this.pc);
-                        this.pc = (short) nnn;
-                        break;
-                }
-                break;
-            case 0x1000:
-                this.pc = (short) nnn;
-                break;
-            case 0x2000:
-                this.stack.push((int) this.pc);
-                this.pc = (short) nnn;
-                break;
-            case  0x3000:
-                // 0x3xNN
-                if (this.vreg[x] == nn)
-                    this.pc+=2;
-                this.pc+=2;
-                break;
-            case  0x4000:
-                // 0x4xNN
-                if (this.vreg[x] != nn)
-                    this.pc+=2;
-                this.pc+=2;
-                break;
-            case  0x5000:
-                // 0x5xy0
-                if (Objects.equals(this.vreg[x], this.vreg[y]))
-                    this.pc+=2;
-                this.pc+=2;
-                break;
 
-            case  0x6000:
-                // 0x6xNN
-                this.vreg[x] = nn;
-                this.pc+=2;
-                break;
-
-            case  0x7000:
-                // 0x7xNN
-                this.vreg[x] += nn;
-                this.vreg[x] = this.vreg[x] & 0xff; // in case of overflow !!
-                this.pc+=2;
-                break;
-            case 0x8000:
-                execute0x8000(opcode);
-                break;
-            case 0x9000:
-                // 0X9xy0
-                if (!Objects.equals(this.vreg[x], this.vreg[y]))
-                    this.pc+=2;
-                this.pc+=2;
-                break;
-            case 0xA000:
-                // 0xANNN
-                this.i = opcode.nnn();
-                this.pc +=2;
-                break;
-            case 0xB000:
-                // 0xBNNN
-                this.pc =(short) (this.vreg[0] + (opcode.nnn()));
-                break;
-            case 0xC000:
-                // 0xCxNN
-                this.vreg[x] =  (rng.nextInt(255)) & (opcode.nn());
-                this.pc +=2;
-                break;
-            case 0XD000:
-                //this OPCODE will render a sprite, 0xDxun
-                vx = this.vreg[x];
-                vy = this.vreg[y];
-                this.renderSprite(vx,vy,n,this.i);
-                this.pc+=2;
-                break;
-
-            case 0xE000:
-                switch (opcode.value() & 0xf0ff) {
-                    case 0xE09E:
-                        if (this.keyboard.key() == this.vreg[x]) {
-                            this.pc +=2;
-                        }
-                        this.pc +=2;
-                        break;
-                    case 0xE0A1:
-                        if (this.keyboard.key() != this.vreg[x]) {
-                            this.pc +=2;
-                        }
-                        this.pc +=2;
-                        break;
-                    default:
-                        throw new MessageException("opcode not found");
-                }
-                break;
-            case 0xF000:
-                execute0xF000(opcode);
-                break;
-            default:
-                throw new MessageException("File not found");
-        }
 
 
     }
@@ -339,27 +376,23 @@ class CPU {
         this.decodeExecute(opcode);
 
     }
-        void renderSprite(int x, int y, int n, int i){
-        this.vreg[0xf] = 0;
-        for(int riga=0;riga < n;riga++){
-            int currentline = this.ram.getAt(i+riga);
-            for (int colonna=0;colonna<8;colonna++){
-                if ((currentline & (0x80 >> colonna)   ) != 0 ) {
-                    if (screen.getPixel((riga + y) % 32, (colonna + x) % 64)== -1) {
-                        this.vreg[0xf] = 1;
-                        screen.drawPixel((riga + y) % 32, (colonna + x) % 64,Color.BLACK);
-                    }
-                    else {
-                        screen.drawPixel((riga + y) % 32, (colonna + x) % 64, Color.WHITE);
-                    }
-                }
+
+
+        void renderspriteInner(int riga,int colonna){
+            if (screen.getPixel((riga ) % 32, (colonna ) % 64)== -1) {
+                this.vreg[0xf] = 1;
+                screen.drawPixel((riga ) % 32, (colonna ) % 64,Color.BLACK);
+            }
+            else {
+                screen.drawPixel((riga ) % 32, (colonna ) % 64, Color.WHITE);
             }
         }
 
-        //opzione 1 - this.screen.drawpixel()
-        //opzione 2 - scrivo solo su chip8_pixel poi faccio una routine che renderizza a 30 FPS
-        //opzione 3 - a ogni draw scrivo tutto quanto
+        void renderSprite(int x, int y, int n, int i){
+            this.vreg[0xf] = 0;
+            IntStream.range(0,n).forEach(riga->IntStream.range(0,8).filter(colonna->(this.ram.getAt(i+riga) & (0x80 >> colonna) ) != 0).forEach(colonna->renderspriteInner(riga+y,colonna+x)));
 
-    }
+        }
+
 
 }
