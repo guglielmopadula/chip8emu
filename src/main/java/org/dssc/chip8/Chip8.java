@@ -81,6 +81,12 @@ public class Chip8 extends BaseChip8{
 
         }
 
+    public static void main(String[] args) {
+        Chip8 mychip = new Chip8(20);
+        mychip.startChip8("pong.rom");
+
+    }
+
 
 
 }
