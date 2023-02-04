@@ -39,7 +39,6 @@ public class Chip8 extends BaseChip8{
     public void mainLoop() {
         Opcode opcode = this.cpu.fetch();
         long time = System.nanoTime();
-        long rendertime = System.nanoTime();
         while (opcode.value() != 0x00FD) {
             this.cpu.decodeExecute(opcode);
             opcode = this.cpu.fetch();

@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.ArrayDeque;
 import java.security.SecureRandom;
 import java.awt.Color;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 
@@ -19,8 +18,8 @@ class CPU {
     short  pc;
     int i;
 
-    HashMap<Integer,generalExecute> opcodemap;
-    private interface generalExecute {
+    HashMap<Integer,GeneralExecute> opcodemap;
+    private interface GeneralExecute {
 
         // Method signatures of pointed method
 
@@ -44,7 +43,7 @@ class CPU {
 
     }
 
-    void configureHashMap(HashMap<Integer,generalExecute> map){
+    void configureHashMap(HashMap<Integer,GeneralExecute> map){
 
         map.put(0x0000,this::execute0x0000);
         map.put(0x1000,this::execute0x1000);
@@ -106,7 +105,7 @@ class CPU {
     }
 
     void execute0x1000(Opcode opcode) {
-       this.pc = (short) opcode.nnn();;
+       this.pc = (short) opcode.nnn();
     }
 
     void execute0x2000(Opcode opcode){
@@ -115,8 +114,6 @@ class CPU {
     }
 
     void execute0x3000(Opcode opcode){
-        int x = opcode.x();
-        int nn = opcode.nn();
         if (this.vreg[opcode.x()] == opcode.nn())
             this.pc+=2;
         this.pc+=2;
