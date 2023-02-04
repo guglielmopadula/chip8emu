@@ -10,7 +10,7 @@ public class Screen {
     final int black = Color.BLACK.getRGB();
     private static int height = 32;
     private static int width = 64;
-    private int scale=5;
+    final int scale;
     private BufferedImage backend;
     public Screen(int scale) {
         this.scale=scale;

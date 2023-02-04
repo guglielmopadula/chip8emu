@@ -8,8 +8,8 @@ public class Chip8 extends BaseChip8{
     JFrame jFrame;
 
     JPanel panel;
-    public Chip8(){
-        super();
+    public Chip8(int scale){
+        super(scale);
 
         keyboard=new Keyboard();
         this.cpu.keyboard=keyboard;
@@ -19,6 +19,17 @@ public class Chip8 extends BaseChip8{
 
 
     }
+    public Chip8(){
+        super();
+        keyboard=new Keyboard();
+        this.cpu.keyboard=keyboard;
+        this.jFrame=new JFrame();
+        this.setJavaComponents();
+
+
+
+    }
+
     void setJavaComponents(){
          this.panel= new JPanel() {
             @Override
@@ -28,9 +39,9 @@ public class Chip8 extends BaseChip8{
             }
         };
         jFrame.add(panel);
-        jFrame.setSize(20*62,20*31);
+        jFrame.setSize(this.screen.scale*64,this.screen.scale*32);
         jFrame.addKeyListener(this.keyboard);
-        jFrame.setPreferredSize(new Dimension(500, 500));
+        jFrame.setPreferredSize(new Dimension(this.screen.scale*64, this.screen.scale*32));
         jFrame.pack();
         jFrame.setVisible(true);
             jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

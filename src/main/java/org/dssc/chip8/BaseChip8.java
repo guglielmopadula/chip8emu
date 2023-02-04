@@ -9,16 +9,25 @@ public class BaseChip8  {
     Timers timers;
     CPU cpu;
 
-      BaseChip8(){
+      BaseChip8(int scale){
         this.basekeyboard=new BaseKeyboard();
         this.ram=new RAM();
-        this.screen=new Screen(5); // extract this MAGIC number !
+        this.screen=new Screen(scale);
+        this.timers=new Timers();
+        this.cpu=new CPU(basekeyboard,ram,screen,timers);
+    }
+
+    BaseChip8(){
+        this.basekeyboard=new BaseKeyboard();
+        this.ram=new RAM();
+        this.screen=new Screen(5);
         this.timers=new Timers();
         this.cpu=new CPU(basekeyboard,ram,screen,timers);
 
     }
 
-       Integer[] readRomFromString(String filePath){
+
+    Integer[] readRomFromString(String filePath){
         File romFile=new File(filePath);
         try (DataInputStream romStream = new DataInputStream(
                 new BufferedInputStream(
