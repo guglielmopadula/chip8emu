@@ -54,11 +54,7 @@ public class Chip8 extends BaseChip8{
                 Toolkit.getDefaultToolkit().beep();
             }
 
-
-            if (System.nanoTime() - rendertime > 160000000 ) {
-                jFrame.repaint();
-                rendertime= System.nanoTime();
-            }
+            jFrame.repaint();
 
             while (System.nanoTime() - time < 3500000 ) {
                 try {
