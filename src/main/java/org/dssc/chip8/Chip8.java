@@ -54,8 +54,6 @@ public class Chip8 extends BaseChip8{
                 Toolkit.getDefaultToolkit().beep();
             }
 
-            //if ((opcode & 0xf000) == 0xd000) {
-            //}
 
             if (System.nanoTime() - rendertime > 160000000 ) {
                 jFrame.repaint();
