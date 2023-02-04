@@ -2,6 +2,8 @@ package org.dssc.chip8;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
@@ -9,13 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import static java.awt.image.BufferedImage.TYPE_BYTE_BINARY;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.concurrent.ThreadLocalRandom;
 
 class Tests {
      static boolean compareImages(BufferedImage Image1, BufferedImage Image2){
@@ -117,75 +117,85 @@ class Tests {
          assertEquals(0x0123,mychip.cpu.pc);
      }
 
-     @Test
-     void test_3xNN_equal(){
-         BaseChip8 mychip= new BaseChip8();
-         int pcBefore = mychip.cpu.pc;
-         mychip.cpu.vreg[0]= 0x23;
-         mychip.cpu.decodeExecute(0x3000 | 0x0023);
-         assertEquals(mychip.cpu.pc,pcBefore + 4);
-     }
+    @RepeatedTest(255)
+    void test_3xNN_equal(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        int current_value = repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[0]= current_value;
+        mychip.cpu.decodeExecute(0x3000 | current_value);
+        assertEquals(mychip.cpu.pc,pcBefore + 4);
+    }
 
-     @Test
-     void test_3xNN_Nequal(){
+
+    @RepeatedTest(255)
+    void test_3xNN_Nequal(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        int current_value = repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[0]= current_value;
+        mychip.cpu.decodeExecute(0x3000 | (current_value + 1) & 0xff);
+        assertEquals(mychip.cpu.pc,pcBefore + 2);
+    }
+
+
+    @RepeatedTest(255)
+    void test_4xNN_equal(RepetitionInfo repetitionInfo) {
          BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.vreg[0]= 0x22;
-         mychip.cpu.decodeExecute(0x3000 | 0x0023);
+         int current_value = repetitionInfo.getCurrentRepetition();
+         mychip.cpu.vreg[0]= current_value;
+         mychip.cpu.decodeExecute(0x4000 | current_value);
          assertEquals(mychip.cpu.pc,pcBefore + 2);
      }
 
-     @Test
-     void test_4xNN_equal(){
-         BaseChip8 mychip= new BaseChip8();
-         int pcBefore = mychip.cpu.pc;
-         mychip.cpu.vreg[0]= 0x23;
-         mychip.cpu.decodeExecute(0x4000 | 0x0023);
-         assertEquals(mychip.cpu.pc,pcBefore + 2);
-     }
+    @RepeatedTest(255)
+    void test_4xNN_Nequal(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        int current_value = repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[0]= current_value;
+        mychip.cpu.decodeExecute(0x4000 | (current_value+1)&0xff);
+        assertEquals(mychip.cpu.pc,pcBefore + 4);
+    }
 
-     @Test
-     void test_4xNN_Nequal(){
-         BaseChip8 mychip= new BaseChip8();
+    @RepeatedTest(255)
+    void test_5xy0_equal(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
          int pcBefore = mychip.cpu.pc;
-         mychip.cpu.vreg[0]= 0x23;
-         mychip.cpu.decodeExecute(0x4000 | 0x0022);
+         int current_value = repetitionInfo.getCurrentRepetition();
+         mychip.cpu.vreg[3]= current_value;
+         mychip.cpu.vreg[2]= current_value;
+         mychip.cpu.decodeExecute(0x5000 | 0x0200 | 0x0030);
          assertEquals(mychip.cpu.pc,pcBefore + 4);
      }
 
-     @Test
-     void test_5xy0_equal(){
-         BaseChip8 mychip= new BaseChip8();
-         int pcBefore = mychip.cpu.pc;
-         mychip.cpu.vreg[0]= 0x23;
-         mychip.cpu.vreg[1]= 0x23;
-         mychip.cpu.decodeExecute(0x5000 | 0x0000 | 0x0010);
-         assertEquals(mychip.cpu.pc,pcBefore + 4);
-     }
+    @RepeatedTest(255)
+    void test_5xy0_Nequal(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int pcBefore = mychip.cpu.pc;
+        int current_value = repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[3]= current_value;
+        mychip.cpu.vreg[2]= (current_value+1)& 0xff;
+        mychip.cpu.decodeExecute(0x5000 | 0x0200 | 0x0030);
+        assertEquals(mychip.cpu.pc,pcBefore + 2);
+    }
 
-     @Test
-     void test_5xy0_Nequal(){
-         BaseChip8 mychip= new BaseChip8();
-         int pcBefore = mychip.cpu.pc;
-         mychip.cpu.vreg[0]= 0x23;
-         mychip.cpu.vreg[1]= 0x24;
-         mychip.cpu.decodeExecute(0x5000 | 0x0000 | 0x0010);
-         assertEquals(mychip.cpu.pc,pcBefore + 2);
-     }
 
      @ParameterizedTest
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
      void test_6xnn(int register) {
          BaseChip8 mychip= new BaseChip8();
-         int nn = ThreadLocalRandom.current().nextInt(0, 256);
+         int nn = 0x23;
          mychip.cpu.decodeExecute(0x6000 | nn | (register << 8) );
         assertEquals(nn, mychip.cpu.vreg[register]);
     }
+
      @ParameterizedTest
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
      void test_7xnn(int register) {
          BaseChip8 mychip= new BaseChip8();
-         int nn = ThreadLocalRandom.current().nextInt(0, 256);
+         int nn = 0x23;
          mychip.cpu.vreg[register]=nn;
          mychip.cpu.decodeExecute(0x7000 | nn | (register << 8));
          assertEquals((nn + nn) & 0xff, mychip.cpu.vreg[register]);
@@ -194,8 +204,8 @@ class Tests {
      @ValueSource(ints = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
      void test_8xy0(int register) {
          BaseChip8 mychip= new BaseChip8();
-         int vx =ThreadLocalRandom.current().nextInt(0, 256);
-         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         int vx =0x23;
+         int vy =0x25;
          mychip.cpu.vreg[register]=vx;
          mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8040 | (register << 8));
@@ -205,8 +215,8 @@ class Tests {
      @Test
      void test_8xy1() {
          BaseChip8 mychip= new BaseChip8();
-         int vx =ThreadLocalRandom.current().nextInt(0, 256);
-         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         int vx =0x23;
+         int vy =0x25;
          mychip.cpu.vreg[3]=vx;
          mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8341);
@@ -215,8 +225,8 @@ class Tests {
      @Test
      void test_8xy2() {
          BaseChip8 mychip= new BaseChip8();
-         int vx = ThreadLocalRandom.current().nextInt(0, 256);
-         int vy = ThreadLocalRandom.current().nextInt(0, 256);
+         int vx =0x23;
+         int vy =0x25;
          mychip.cpu.vreg[3]=vx;
          mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8342);
@@ -226,8 +236,8 @@ class Tests {
      @Test
      void test_8xy3() {
          BaseChip8 mychip= new BaseChip8();
-         int vx =ThreadLocalRandom.current().nextInt(0, 256);
-         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         int vx =0x23;
+         int vy =0x25;
          mychip.cpu.vreg[3]=vx;
          mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8343);
@@ -236,8 +246,8 @@ class Tests {
      @Test
      void test_8xy4() {
          BaseChip8 mychip= new BaseChip8();
-         int vx =ThreadLocalRandom.current().nextInt(0, 256);
-         int vy =ThreadLocalRandom.current().nextInt(0, 256);
+         int vx =0x23;
+         int vy =0x25;
          mychip.cpu.vreg[3]=vx;
          mychip.cpu.vreg[4]=vy;
          mychip.cpu.decodeExecute(0x8344);
@@ -252,9 +262,55 @@ class Tests {
          mychip.cpu.vreg[4]=0x009;
          mychip.cpu.decodeExecute(0x8345);
          assertEquals(mychip.cpu.vreg[3], (0x001 - 0x009)  & 0xff );
-         //aggiungere test per il carry, non sono sicuro che funzioni attualmente
      }
-     @Test
+
+    @RepeatedTest(255)
+    void test_8xy5CF(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int current_value=repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[3]=125; //x reg
+        mychip.cpu.vreg[4]=current_value; //y reg
+        mychip.cpu.decodeExecute(0x8345);
+        if (125 > current_value)
+            assertEquals(mychip.cpu.vreg[0xf], 1 );
+        else
+            assertEquals(mychip.cpu.vreg[0xf], 0 );
+     }
+
+    @RepeatedTest(255)
+    void test_8xy6CF(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int current_value=repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[3]=current_value; //y reg
+        mychip.cpu.decodeExecute(0x8306);
+        if ((current_value & 0x1)==1)
+            assertEquals(mychip.cpu.vreg[0xf], 1 );
+        else
+            assertEquals(mychip.cpu.vreg[0xf], 0 );
+    }
+
+    @RepeatedTest(255)
+    void test_8xy7CF(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int current_value=repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[3]=125; //x reg
+        mychip.cpu.vreg[4]=current_value; //y reg
+        mychip.cpu.decodeExecute(0x8347);
+        if (current_value > 125)
+            assertEquals(mychip.cpu.vreg[0xf], 1 );
+        else
+            assertEquals(mychip.cpu.vreg[0xf], 0 );
+    }
+    @RepeatedTest(255)
+    void test_8xyECF(RepetitionInfo repetitionInfo) {
+        BaseChip8 mychip= new BaseChip8();
+        int current_value=repetitionInfo.getCurrentRepetition();
+        mychip.cpu.vreg[4]=current_value; //y reg
+        mychip.cpu.decodeExecute(0x844E);
+        assertEquals(mychip.cpu.vreg[0xf], (current_value & 0x80) >>> 7 );
+    }
+
+    @Test
      void test_8xy6() {
          BaseChip8 mychip= new BaseChip8();
          mychip.cpu.vreg[3]=0x001;
@@ -378,7 +434,6 @@ class Tests {
 
      }
 
-
      @ParameterizedTest
      @ValueSource(ints = {0x8340, 0x8341,0x8342,0x8343,0x8344,0x8345,0x8346,0x8347,0x834E})
      void testPcAdvance8000(int opcode)  {
@@ -414,6 +469,18 @@ class Tests {
          mychip.cpu.decodeExecute(opcode);
          assertEquals(mychip.cpu.pc,  pc + 2 );
      }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0x8009,0xF099,0xE099})
+    void testUnknowOpcode(int opcode){
+         BaseChip8 mychip= new BaseChip8();
+         assertThrows(MessageException.class, () -> {
+             mychip.cpu.decodeExecute(opcode);
+         }  );
+     }
+
+
+
      @Test
      void test_compare_images_true() {
          BufferedImage Image1 = new BufferedImage(10, 20,TYPE_BYTE_BINARY);
