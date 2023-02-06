@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id "org.sonarqube" version "3.5.0.2730"
     id "jacoco"
+    id 'application'
 }
 
 
@@ -38,3 +39,4 @@ dependencies {
 test {
     useJUnitPlatform()
     }
+mainClassName = 'org.dssc.chip8.Chip8'
