@@ -376,7 +376,7 @@ class CPU {
 
 
         void renderspriteInner(int riga,int colonna){
-            if (screen.getPixel((riga ) % 32, (colonna ) % 64)== -1) {
+            if (screen.getPixel((riga ) % 32, (colonna ) % 64)== Color.WHITE.getRGB()) {
                 this.vreg[0xf] = 1;
                 screen.drawPixel((riga ) % 32, (colonna ) % 64,Color.BLACK);
             }
